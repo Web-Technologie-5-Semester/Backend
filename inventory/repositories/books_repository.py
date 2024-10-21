@@ -1,4 +1,3 @@
-import uuid
 from ..models.books import Book
 from sqlmodel import SQLModel
 from sqlalchemy import select, Engine, create_engine
@@ -40,31 +39,24 @@ class BooksRepository:
         self.create(book)
         return book
 
+
 #Singleton
-class Singleton:
-    instance = None 
-    lock = threading.Lock() #nur ein Thread kann überprüfung durchführen
+# class Singleton:
+#     instance = None 
+#     lock = threading.Lock() #nur ein Thread kann überprüfung durchführen
 
-    def __new__(cls): #wird noch vor der innit aufgerufen, chekct, ob es wirklich keine Instanz gibt
-        if cls.instance is None:
-            with cls.lock:
-                if cls.isinstance is None: # double checking, damit echt keine Instanz beim multithreading exitiert
-                    cls.instance = super(Singleton, cls).__new__(cls)
-                    cls._initialize_pool()
-                return cls.instance
+#     def __new__(cls): #wird noch vor der innit aufgerufen, chekct, ob es wirklich keine Instanz gibt
+#         if cls.instance is None:
+#             with cls.lock:
+#                 if cls.isinstance is None: # double checking, damit echt keine Instanz beim multithreading exitiert
+#                     cls.instance = super(Singleton, cls).__new__(cls)
+#                     cls._initialize_pool()
+#                 return cls.instance
     
-    def _initialize_pool(self):
-        self.engine = create_engine('postgresql://postgres:admin@localhost:5431/db')
-        self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+#     def _initialize_pool(self):
+#         self.engine = create_engine('postgresql://postgres:admin@localhost:5431/db')
+#         self.session_local = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
 
-    def get_session(self): #sitzung um mit datenbank zu agieren 
-        return self.SessionLocal()
+#     def get_session(self): #sitzung um mit datenbank zu agieren 
+#         return self.session_local()
     
-#Dependency Injection 
-def get_db():
-    db_pool = Singleton()
-    db = db_pool.get_session()
-    try:
-        yield db
-    finally:
-        db.close()

@@ -12,6 +12,4 @@
     https://fastapi.tiangolo.com/tutorial/#run-the-code
 
 3. start fastAPI
-- fastapi dev ...
-
-4. 
+- fastapi dev main.py

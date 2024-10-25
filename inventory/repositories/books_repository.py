@@ -1,24 +1,25 @@
-from ..models.books import Book
+from ..models.book import Book
 from sqlmodel import SQLModel
 from sqlalchemy import select, Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
-import threading
+
 
 
 
 class BooksRepository:
     engine :Engine = None
 
-    def __init__(self, engine):
-        self.engine = Engine
+    def __init__(self, engine: Engine):
+        self.engine = engine
 
     
     def get_all(self):
         with Session(self.engine) as s:
-            stmt = select(Book)
-            result = s.exec(stmt)
-            books = result.all()
-        return books
+            books = s.execute(select(Book)).all()
+            # stmt = select(Book)
+            # result = s.execute(stmt)
+            # books = result.all()
+            return books
     
     def get_by_isbn(self, isbn: int):
         with Session(self.engine) as s:
@@ -30,7 +31,7 @@ class BooksRepository:
             s.commit()
     
     def create(self, book: Book):
-        with Session(self.engine) as s:   
+        with Session(self.engine) as s: 
             s.add(book)   
             s.commit()
             return book    

@@ -1,32 +1,35 @@
 from pydantic import BaseModel
-from sqlmodel import Field, Session, SQLModel, create_engine, select
+from sqlmodel import Field, Session, SQLModel, create_engine, select, Relationship
 from datetime import date
+from .author import Author
+from .genre import Genre
+from .publisher import Publisher
 
 
 
 
 class Book(SQLModel, table = True):
 
-    isbn: int = Field(primary_key=True)
+    isbn: int | None = Field(default=None, primary_key=True)
     title: str = Field()
-    # id_author: int = Field(foreign_key="authors.id")
+    author_id: int | None = Field(default=None, foreign_key="author.id")
     release: date = Field()
-    # genre: str = Field(foreign_key="genre.id")
+    genre_id: int = Field(foreign_key="genre.id")
     description: str = Field()
     price: float = Field()
     age_recommendation: int = Field()
-    # publisher: str = Field(foreign_key="publisher.id")
+    publisher_id: int | None = Field(default=None, foreign_key="publisher.id")
     stock: int = Field()
 
-
-
-    
+    author: Author | None = Relationship(back_populates="books")
+    genre: Genre | None = Relationship(back_populates="books")
+    publisher: Publisher | None = Relationship(back_populates="books")
 
 
 class BookResponse(BaseModel):
     isbn: int
     title: str
-    id_author: int
+    author_id: int
     release: date
     genre: str
     description: str
@@ -37,7 +40,7 @@ class BookResponse(BaseModel):
 
 class BookCreate(BaseModel):
     title : str
-    id_author : int 
+    author_id : int 
     genre : str
     description : str
     price : str
@@ -47,12 +50,10 @@ class BookCreate(BaseModel):
 class BookUpdate(BaseModel):
     isbn: int
     title : str | None = None
-    id_author : int | None = None
+    author_id : int | None = None
     genre : str | None = None
     description : str | None = None
     price : str | None = None
     age_recommendation : int | None = None
     publisher : str | None = None
 
-# class BookDelete(BaseModel):
-#     isbn : Integer

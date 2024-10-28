@@ -1,13 +1,8 @@
 #wenn neues buch angelegt, muss schauen ob autor schon da, wenn nicht, dann neuen anlegen, wenn ja dann zu autor repository 
-from .models.book import Book
-from ..inventory.models.author import Author
-from ..inventory.models.genre import Genre
-from ..inventory.models.publisher import Publisher
-from ..inventory.repositories.author_repository import AuthorRepository
-from ..inventory.repositories.genre_repository import GenreRepository
-from ..inventory.repositories.publisher_repository import PublisherRepository
+from inventory.repositories import AuthorRepository, GenreRepository, PublisherRepository
 from sqlalchemy.orm import Session
 from sqlalchemy import select, Engine
+from inventory.models import Book, Author, Genre, Publisher
 
 
 class InventoryService():

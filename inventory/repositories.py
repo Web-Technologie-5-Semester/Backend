@@ -60,6 +60,10 @@ class BooksRepository:
         with Session(self.engine) as s:
             return s.get(Book, isbn)
         
+    # def get_by_author(self, author: str):
+    #     with Session(self.engine) as s:
+    #         return s.get(Book, author)
+        
     def delete_by_isbn(self, isbn: int) -> None:
         with Session(self.engine) as s:
             s.delete(Book, isbn)

@@ -49,6 +49,10 @@ async def get_books():
 async def get_book_by_isbn(book_isbn: int):
     return rep.get_by_isbn(book_isbn)
 
+# @app.get("/book/{author}", response_model=Book)
+# async def get_book_by_author(book_author: str):
+#     return rep.get_by_author(book_author)
+
 @app.delete("/book", response_model=Book)
 async def delete_book_by_isbn(book_isbn: int):
     rep.delete_by_isbn(book_isbn)

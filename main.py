@@ -40,6 +40,7 @@ author_rep = AuthorRepository(engine)
 service = InventoryService()
 
 
+#Book
 @app.get("/books", response_model=list[BookResponse])
 async def get_books(s: Session = Depends(get_session)):
     books = rep.get_all(s)
@@ -49,10 +50,6 @@ async def get_books(s: Session = Depends(get_session)):
 @app.get("/book/{book_isbn}", response_model=BookResponse)
 async def get_book_by_isbn(book_isbn: str, s: Session = Depends(get_session)):
     return rep.get_by_isbn(book_isbn, s) 
-
-# @app.get("/book/{book_author}", response_model=AuthorResponse)
-# async def get_author_by_isbn(auhtor_id:int):
-#     return author_rep.get_by_id(auhtor_id)
 
 @app.delete("/book", response_model=Book)
 async def delete_book_by_isbn(book_isbn: str, s: Session = Depends(get_session)): # Darf nichts zurückliefern? 
@@ -70,6 +67,14 @@ async def update_book(book: Book, s: Session = Depends(get_session)):
     # service.new_genre(book, s)
     rep.update(book, s)
     return book
+
+
+
+#Auhtor
+@app.get("/author/{author_id}/books", response_model=list[BookResponse])
+async def get_books_by_author(auhtor_id:int, s: Session = Depends(get_session)):
+    books = author_rep.get_books_by_id(auhtor_id, s)
+    return books
 
 if __name__=="__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

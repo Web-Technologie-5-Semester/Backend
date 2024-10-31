@@ -9,21 +9,25 @@ from .models import Author, Book, Genre, Publisher
 class AuthorRepository:
     engine :Engine = None
 
-    def __init__(self, engine):
-        self.engine = Engine
+    def __init__(self, engine: Engine):
+        self.engine = engine
 
-    def get_all(self):
-        with Session(self.engine) as s:
-            stmt = select(Author)
-            result = s.exec(stmt)
-            authors = result.all()
+    def get_all(self, s: Session):
+        #with Session(self.engine) as s:
+        authors = s.query(Author).all()
+        # stmt = select(Author)
+        #     result = s.exec(stmt)
+        #     authors = result.all()
         return authors
     
-    def get_by_id(self, id_author: uuid):
-        with Session(self.engine) as s:
-            return s.get(Author, id_author)
+    def get_books_by_id(self, id_author: int, s: Session):
+        stmt = select(Book).where(Book.author_id == id_author)
+        result = s.execute(stmt).scalars().all()
+        return result
+        #with Session(self.engine) as s:
+        #return s.get(Author, id_author)
         
-    def delete_by_id(self, id_author: uuid) -> None:
+    def delete_by_id(self, id_author: int) -> None:
         with Session(self.engine) as s:
             s.delete(Author, id_author)
             s.commit()
@@ -84,8 +88,11 @@ class BooksRepository:
         return book    
 
     def update(self, book: Book, s: Session):
-        self.create(book)
+        self.create(book, s)
+        s.commit()
         return book
+    
+    
 
 
 #Singleton

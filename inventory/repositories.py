@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel
 from sqlalchemy import select, Engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload, selectinload, subqueryload
 import uuid
 from .models import Author, Book, Genre, Publisher
 
@@ -48,34 +48,42 @@ class BooksRepository:
         self.engine = engine
 
     
-    def get_all(self):
-        with Session(self.engine) as s:
-            books = s.query(Book).all()
+    def get_all(self, s: Session):
+        #with Session(self.engine) as s:
+        books = s.query(Book).all()
             # stmt = select(Book)
             # result = s.execute(stmt)
             # books = result.all()
-            return books
+        return books
     
-    def get_by_isbn(self, isbn: int):
-        with Session(self.engine) as s:
-            return s.get(Book, isbn)
+    def get_by_isbn(self, isbn: str, s: Session):
+        #with Session(self.engine) as s:
+        stmt = select(Book).options(subqueryload(Book.author)).where(Book.isbn == isbn)
+        #stmt = select(Book).where(Book.isbn == isbn)
+        result = s.execute(stmt).scalars().first()
+
+        return result #s.get(Book, isbn)
+        
         
     # def get_by_author(self, author: str):
     #     with Session(self.engine) as s:
     #         return s.get(Book, author)
         
-    def delete_by_isbn(self, isbn: int) -> None:
-        with Session(self.engine) as s:
-            s.delete(Book, isbn)
-            s.commit()
+    def delete_by_isbn(self, isbn: str, s: Session):
+        #with Session(self.engine) as s:
+        stmt = select(Book).where(Book.isbn == isbn) #.options(subqueryload(Book.author)).where(Book.isbn == isbn)
+        result = s.execute(stmt).scalars().first()
+        s.delete(result)
+        s.commit()
+        return isbn
     
-    def create(self, book: Book):
-        with Session(self.engine) as s: 
-            s.add(book)   
-            s.commit()
-            return book    
+    def create(self, book: Book, s: Session):
+        #with Session(self.engine) as s: 
+        s.add(book)      
+        s.commit()
+        return book    
 
-    def update(self, book: Book):
+    def update(self, book: Book, s: Session):
         self.create(book)
         return book
 

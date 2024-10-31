@@ -8,6 +8,14 @@ from inventory.models import Book, Author, Genre, Publisher
 class InventoryService():
 
 
+    # def get_author_name(self, isbn: int):
+    #     with Session(self.engine) as s:
+    #         book_stmt = select(Book).where(Book.isbn == isbn)
+    #         book = s.query(book_stmt).first()
+    #         author_stmt = select(Author).where(Author.id == book.author_id)
+    #         result = s.query(author_stmt).first() 
+    #         return result.author
+
     def new_author(self, book:Book, author: Author):
         with Session(self.engine) as s:
             stmt = select(Author).where(author.id == book.id_author)

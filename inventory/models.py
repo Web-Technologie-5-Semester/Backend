@@ -3,33 +3,34 @@ from sqlmodel import Field, Session, SQLModel, create_engine, select, Relationsh
 from datetime import date
 
 
+
 #Author 
 class Author(SQLModel, table = True):
 
     id: int | None = Field(default= None, primary_key= True)
-    author: str = Field()
-    firstName: str = Field()
+    name: str = Field()
+    first_name: str = Field()
     birthday: date = Field()
 
     books: list["Book"] = Relationship(back_populates="author")
 
 
-class Response(BaseModel):
+class AuthorResponse(BaseModel):
     id: int
     name: str
-    firstName: str
+    first_name: str
     birthday: date
 
 class Create(BaseModel):
     id: int
     name: str
-    firstName: str
+    first_name: str
     birthday: date
 
 class Update(BaseModel):
     id: int
     name: str | None = None
-    firstName: str | None = None
+    first_name: str | None = None
     birthday: date | None = None 
 
 
@@ -84,7 +85,7 @@ class Update(BaseModel):
 #Book
 class Book(SQLModel, table = True):
 
-    isbn: int | None = Field(default=None, primary_key=True)
+    isbn: str | None = Field(default=None, primary_key=True)
     title: str = Field()
     
     release: date = Field()
@@ -102,9 +103,9 @@ class Book(SQLModel, table = True):
 
 
 class BookResponse(BaseModel):
-    isbn: int
+    isbn: str
     title: str
-    author_id: int
+    author: AuthorResponse
     release: date
     genre_id: int
     description: str
@@ -112,7 +113,9 @@ class BookResponse(BaseModel):
     age_recommendation: int
     publisher_id: int 
     stock: int
-     
+    
+    class Config:
+        orm_mode = True
 
 class BookCreate(BaseModel):
     title : str
@@ -124,7 +127,7 @@ class BookCreate(BaseModel):
     publisher : str
 
 class BookUpdate(BaseModel):
-    isbn: int
+    isbn: str
     title : str | None = None
     author_id : int | None = None
     genre : str | None = None

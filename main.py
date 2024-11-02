@@ -14,6 +14,7 @@ sql_url = "postgresql://postgres:admin@localhost:5431/db"
 
 connect_args = {"check_same_thread": False}
 engine = create_engine(sql_url, echo=True)
+session = Session(engine)
 
 
 def get_session():
@@ -35,8 +36,8 @@ app = FastAPI(lifespan=lifespan)
 
 
 
-rep = BooksRepository(engine)
-author_rep = AuthorRepository(engine)
+rep = BooksRepository(session)
+author_rep = AuthorRepository(session)
 service = InventoryService()
 
 
@@ -51,30 +52,30 @@ async def get_books(s: Session = Depends(get_session)):
 async def get_book_by_isbn(book_isbn: str, s: Session = Depends(get_session)):
     return rep.get_by_isbn(book_isbn, s) 
 
-@app.delete("/book", response_model=Book)
-async def delete_book_by_isbn(book_isbn: str, s: Session = Depends(get_session)): # Darf nichts zurückliefern? 
-    
-    return rep.delete_by_isbn(book_isbn, s) #{"book:", book_isbn, " deleted"}
+@app.delete("/book/{isbn}", response_model=Book)
+async def delete_book_by_isbn(isbn: str): # Darf nichts zurückliefern? 
+    return rep.delete_by_isbn(isbn) #{"book:", book_isbn, " deleted"}
 
 @app.post("/book", response_model=Book)
-async def create_book(book: Book, s: Session = Depends(get_session)):
-    rep.create(book, s)
+async def create_book(book: Book):
+    rep.create(book)
     return book
 
-@app.put("/book", response_model=Book)
-async def update_book(book: Book, s: Session = Depends(get_session)):
+@app.put("/book/{isbn}", response_model=Book)
+async def update_book(isbn: str, new_book :Book):
     # service.new_author(book, s)
     # service.new_genre(book, s)
-    rep.update(book, s)
-    return book
+    
+    return rep.update(isbn, new_book)
 
 
 
 #Auhtor
-@app.get("/author/{author_id}/books", response_model=list[BookResponse])
-async def get_books_by_author(auhtor_id:int, s: Session = Depends(get_session)):
-    books = author_rep.get_books_by_id(auhtor_id, s)
-    return books
+@app.get("/author/{author_id}/books", response_model=list[Book])
+async def get_books_by_author(auhtor_id:int):
+    return author_rep.get_books_by_id(auhtor_id)
+
+
 
 if __name__=="__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -7,36 +7,33 @@ from .models import Author, Book, Genre, Publisher
 
 #Author
 class AuthorRepository:
-    engine :Engine = None
 
-    def __init__(self, engine: Engine):
-        self.engine = engine
+    def __init__(self, session: Session):
+        self.session = session
 
-    def get_all(self, s: Session):
+    def get_all(self):
         #with Session(self.engine) as s:
-        authors = s.query(Author).all()
+        authors = self.session.query(Author).all()
         # stmt = select(Author)
         #     result = s.exec(stmt)
         #     authors = result.all()
         return authors
     
-    def get_books_by_id(self, id_author: int, s: Session):
+    def get_books_by_id(self, id_author: int):
         stmt = select(Book).where(Book.author_id == id_author)
-        result = s.execute(stmt).scalars().all()
+        result = self.session.execute(stmt).scalars().all()
         return result
         #with Session(self.engine) as s:
         #return s.get(Author, id_author)
         
     def delete_by_id(self, id_author: int) -> None:
-        with Session(self.engine) as s:
-            s.delete(Author, id_author)
-            s.commit()
+        self.session.delete(Author, id_author)
+        self.session.commit()
     
     def create(self, author: Author):
-        with Session(self.engine) as s:   
-            s.add(author)   
-            s.commit()
-            return author    
+        self.session.add(author)   
+        self.session.commit()
+        return author    
 
     def update(self, author: Author):
         self.create(author)
@@ -47,24 +44,25 @@ class AuthorRepository:
 #Books
 class BooksRepository:
     engine :Engine = None
+    session :Session = None
 
-    def __init__(self, engine: Engine):
-        self.engine = engine
+    def __init__(self, session: Session):
+        self.session = session
 
     
-    def get_all(self, s: Session):
+    def get_all(self):
         #with Session(self.engine) as s:
-        books = s.query(Book).all()
+        books = self.session.query(Book).all()
             # stmt = select(Book)
             # result = s.execute(stmt)
             # books = result.all()
         return books
     
-    def get_by_isbn(self, isbn: str, s: Session):
+    def get_by_isbn(self, isbn: str):
         #with Session(self.engine) as s:
         stmt = select(Book).options(subqueryload(Book.author)).where(Book.isbn == isbn)
         #stmt = select(Book).where(Book.isbn == isbn)
-        result = s.execute(stmt).scalars().first()
+        result = self.session.execute(stmt).scalars().first()
 
         return result #s.get(Book, isbn)
         
@@ -73,24 +71,35 @@ class BooksRepository:
     #     with Session(self.engine) as s:
     #         return s.get(Book, author)
         
-    def delete_by_isbn(self, isbn: str, s: Session):
+    def delete_by_isbn(self, isbn: str):
         #with Session(self.engine) as s:
         stmt = select(Book).where(Book.isbn == isbn) #.options(subqueryload(Book.author)).where(Book.isbn == isbn)
-        result = s.execute(stmt).scalars().first()
-        s.delete(result)
-        s.commit()
-        return isbn
+        result = self.session.execute(stmt).scalars().first()
+        self.session.delete(result)
+        self.session.commit()
+        return result 
     
-    def create(self, book: Book, s: Session):
+    def create(self, book: Book):
         #with Session(self.engine) as s: 
-        s.add(book)      
-        s.commit()
+        self.session.add(book)      
+        self.session.commit()
         return book    
 
-    def update(self, book: Book, s: Session):
-        self.create(book, s)
-        s.commit()
-        return book
+    def update(self, isbn: str, new_book: Book):
+        stmt = select(Book).options(subqueryload(Book.author)).where(Book.isbn == isbn)
+        result :Book = self.session.execute(stmt).scalars().first()
+        for key,value in dict(new_book).items():
+            if key != "isbn":
+                if hasattr(result, key):
+                    setattr(result, key, value)
+                else:
+                    raise Exception(f'inexistent attribute {key}')
+        self.session.add(result)
+        self.session.commit()
+        self.session.refresh(result)
+        # self.create(result, s)
+        # s.commit()
+        return result
     
     
 
@@ -119,32 +128,28 @@ class BooksRepository:
 
 #Genre
 class GenreRepository:
-    engine :Engine = None
+    session :Session = None
 
-    def __init__(self, engine):
-        self.engine = Engine
+    def __init__(self, session):
+        self.session = session
 
     def get_all(self):
-        with Session(self.engine) as s:
-            stmt = select(Genre)
-            result = s.exec(stmt)
-            genres = result.all()
+        stmt = select(Genre)
+        result = self.session.exec(stmt)
+        genres = result.all()
         return genres
     
     def get_by_id(self, id_genre: int):
-        with Session(self.engine) as s:
-            return s.get(Genre, id_genre)
+        return self.session.get(Genre, id_genre)
         
     def delete_by_id(self, id_genre: int) -> None:
-        with Session(self.engine) as s:
-            s.delete(Genre, id_genre)
-            s.commit()
+        self.session.delete(Genre, id_genre)
+        self.session.commit()
     
     def create(self, genre: Genre):
-        with Session(self.engine) as s:   
-            s.add(genre)   
-            s.commit()
-            return genre    
+        self.session.add(genre)   
+        self.session.commit()
+        return genre    
 
     def update(self, genre: Genre):
         self.create(genre)
@@ -154,32 +159,28 @@ class GenreRepository:
 
 #Publisher
 class PublisherRepository:
-    engine :Engine = None
+    session :Session = None
 
-    def __init__(self, engine):
-        self.engine = Engine
+    def __init__(self, session):
+        self.session = session
 
     def get_all(self):
-        with Session(self.engine) as s:
-            stmt = select(Publisher)
-            result = s.exec(stmt)
-            publisher = result.all()
+        stmt = select(Publisher)
+        result = self.session.exec(stmt)
+        publisher = result.all()
         return publisher
     
     def get_by_id(self, id_publisher: int):
-        with Session(self.engine) as s:
-            return s.get(Publisher, id_publisher)
+        return self.session.get(Publisher, id_publisher)
         
     def delete_by_id(self, id_publisher: int) -> None:
-        with Session(self.engine) as s:
-            s.delete(Publisher, id_publisher)
-            s.commit()
+        self.session.delete(Publisher, id_publisher)
+        self.session.commit()
     
     def create(self, publisher: Publisher):
-        with Session(self.engine) as s:   
-            s.add(publisher)   
-            s.commit()
-            return publisher   
+        self.session.add(publisher)   
+        self.session.commit()
+        return publisher   
 
     def update(self, publisher: Publisher):
         self.create(publisher)

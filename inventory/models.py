@@ -119,7 +119,7 @@ class BookResponse(BaseModel):
 
 class BookCreate(BaseModel):
     title : str
-    author_id : int 
+    author : Author 
     genre : str
     description : str
     price : str
@@ -129,7 +129,7 @@ class BookCreate(BaseModel):
 class BookUpdate(BaseModel):
     isbn: str
     title : str | None = None
-    author_id : int | None = None
+    author: AuthorResponse | None = None
     genre : str | None = None
     description : str | None = None
     price : str | None = None

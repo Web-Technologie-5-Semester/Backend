@@ -9,28 +9,30 @@ class Author(SQLModel, table = True):
 
     id: int | None = Field(default= None, primary_key= True)
     name: str = Field()
-    first_name: str = Field()
     birthday: date = Field()
 
     books: list["Book"] = Relationship(back_populates="author")
 
 
 class AuthorResponse(BaseModel):
-    id: int
+    id: int 
     name: str
-    first_name: str
     birthday: date
 
-class Create(BaseModel):
-    id: int
+    class Config:
+        orm_mode = True
+
+
+class AuthorCreate(BaseModel):
     name: str
-    first_name: str
     birthday: date
+
+    class Config:
+        orm_mode = True
 
 class Update(BaseModel):
     id: int
     name: str | None = None
-    first_name: str | None = None
     birthday: date | None = None 
 
 
@@ -118,13 +120,19 @@ class BookResponse(BaseModel):
         orm_mode = True
 
 class BookCreate(BaseModel):
+    isbn: str
     title : str
-    author : Author 
-    genre : str
+    author : AuthorCreate
+    release: date
+    genre_id : int
     description : str
-    price : str
+    price : float
     age_recommendation : int
-    publisher : str
+    publisher_id : int
+    stock: int
+
+    class Config:
+        orm_mode = True
 
 class BookUpdate(BaseModel):
     isbn: str

@@ -1,34 +1,30 @@
 #wenn neues buch angelegt, muss schauen ob autor schon da, wenn nicht, dann neuen anlegen, wenn ja dann zu autor repository 
-from inventory.repositories import AuthorRepository, GenreRepository, PublisherRepository
 from sqlalchemy.orm import Session
 from sqlalchemy import select, Engine
-from inventory.models import Book, Author, Genre, Publisher
+from inventory.models import AuthorCreate, Book, Author, Genre, Publisher, BookResponse, AuthorResponse
 
 
 class InventoryService():
+    session :Session = None
+
+    def __init__(self, session):
+        self.session = session
 
 
-    # def get_author_name(self, isbn: int):
-    #     with Session(self.engine) as s:
-    #         book_stmt = select(Book).where(Book.isbn == isbn)
-    #         book = s.query(book_stmt).first()
-    #         author_stmt = select(Author).where(Author.id == book.author_id)
-    #         result = s.query(author_stmt).first() 
-    #         return result.author
-
-    def new_author(self, book:Book, author: Author):
-        with Session(self.engine) as s:
-            stmt = select(Author).where(author.id == book.id_author)
-            result = s.exec(stmt).first()
-            if result:
-                return result
-            else:
-                author_rep = AuthorRepository()
-                new_author = author_rep.create(author)
-                s.add(new_author)
-                s.commit()
-                s.refresh(new_author)
+    def new_author(self, author: AuthorCreate) -> Author:
+        stmt = select(Author).where(Author.name == author.name)
+        result = self.session.exec(stmt).scalars().first()
+        if not result:
+            new_author = Author(
+                name = author.name,
+                birthday = author.birthday
+            )
+            self.session.add(new_author)
+            self.session.commit()
+            self.session.refresh(new_author)
             return new_author
+        else:
+            return result
         
     
     def new_genre(self, book:Book, genre: Genre):

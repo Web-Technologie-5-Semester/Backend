@@ -141,6 +141,11 @@ class GenreRepository:
     
     def get_by_id(self, id_genre: int):
         return self.session.get(Genre, id_genre)
+    
+    def get_books_by_id(self, id_genre: int):
+        stmt = select(Book).where(Book.genre_id == id_genre)
+        result = self.session.execute(stmt).scalars().all()
+        return result
         
     def delete_by_id(self, id_genre: int) -> None:
         self.session.delete(Genre, id_genre)
@@ -172,6 +177,11 @@ class PublisherRepository:
     
     def get_by_id(self, id_publisher: int):
         return self.session.get(Publisher, id_publisher)
+    
+    def get_books_by_id(self, id_publisher: int):
+        stmt = select(Book).where(Book.publisher_id == id_publisher)
+        result = self.session.execute(stmt).scalars().all()
+        return result
         
     def delete_by_id(self, id_publisher: int) -> None:
         self.session.delete(Publisher, id_publisher)

@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 from typing import Annotated
 from datetime import date
-from inventory.repositories import BooksRepository, AuthorRepository
+from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
 from inventory.inventory_service import InventoryService
 from inventory.models import Book, BookResponse, Author, AuthorResponse, Genre, Publisher
 
@@ -38,19 +38,21 @@ app = FastAPI(lifespan=lifespan)
 
 rep = BooksRepository(session)
 author_rep = AuthorRepository(session)
+genre_rep = GenreRepository(session)
+publisher_rep = PublisherRepository(session)
 service = InventoryService()
 
 
 #Book
 @app.get("/books", response_model=list[BookResponse])
-async def get_books(s: Session = Depends(get_session)):
-    books = rep.get_all(s)
+async def get_books():
+    books = rep.get_all()
     #print (books)
     return books
 
 @app.get("/book/{book_isbn}", response_model=BookResponse)
-async def get_book_by_isbn(book_isbn: str, s: Session = Depends(get_session)):
-    return rep.get_by_isbn(book_isbn, s) 
+async def get_book_by_isbn(book_isbn: str):
+    return rep.get_by_isbn(book_isbn) 
 
 @app.delete("/book/{isbn}", response_model=Book)
 async def delete_book_by_isbn(isbn: str): # Darf nichts zurückliefern? 
@@ -74,6 +76,20 @@ async def update_book(isbn: str, new_book :Book):
 @app.get("/author/{author_id}/books", response_model=list[Book])
 async def get_books_by_author(auhtor_id:int):
     return author_rep.get_books_by_id(auhtor_id)
+
+
+
+#Genre
+@app.get("/genre/{genre_id}/books", response_model= list[Book])
+async def get_books_by_genre(genre_id: int):
+    return genre_rep.get_books_by_id(genre_id)
+
+
+
+#Publisher
+@app.get("/publisher/{publisher_id}/books", response_model= list[Book])
+async def get_books_by_genre(publisher_id: int):
+    return publisher_rep.get_books_by_id(publisher_id)
 
 
 

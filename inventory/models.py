@@ -30,7 +30,7 @@ class AuthorCreate(BaseModel):
     class Config:
         orm_mode = True
 
-class Update(BaseModel):
+class AuthorUpdate(BaseModel):
     id: int
     name: str | None = None
     birthday: date | None = None 
@@ -46,15 +46,20 @@ class Genre(SQLModel, table = True):
     books: list["Book"] = Relationship(back_populates="genre")
 
 
-class Response(BaseModel):
+class GenreResponse(BaseModel):
     id: int
     genre: str
 
-class Create(BaseModel):
-    id: int
+    class Config:
+        orm_mode = True
+
+class GenreCreate(BaseModel):
     genre: str
 
-class Update(BaseModel):
+    class Config:
+        orm_mode = True
+
+class GenreUpdate(BaseModel):
     id: int
     genre: str | None = None
 
@@ -70,17 +75,22 @@ class Publisher(SQLModel, table = True):
 
 
 
-class Response(BaseModel):
+class PublisherResponse(BaseModel):
     id: int
-    name: str
+    publisher: str
 
-class Create(BaseModel):
-    id: int
-    name: str
+    class Config:
+        orm_mode = True
+
+class PublisherCreate(BaseModel):
+    publisher: str
+
+    class Config:
+        orm_mode = True
 
 class Update(BaseModel):
     id: int
-    name: str | None = None
+    publisher: str | None = None
 
 
 
@@ -109,11 +119,11 @@ class BookResponse(BaseModel):
     title: str
     author: AuthorResponse
     release: date
-    genre_id: int
+    genre: GenreResponse
     description: str
     price: float
     age_recommendation: int
-    publisher_id: int 
+    publisher: PublisherResponse
     stock: int
     
     class Config:
@@ -124,11 +134,11 @@ class BookCreate(BaseModel):
     title : str
     author : AuthorCreate
     release: date
-    genre_id : int
+    genre : GenreCreate
     description : str
     price : float
     age_recommendation : int
-    publisher_id : int
+    publisher : PublisherCreate
     stock: int
 
     class Config:

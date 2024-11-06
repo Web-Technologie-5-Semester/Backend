@@ -9,28 +9,30 @@ class Author(SQLModel, table = True):
 
     id: int | None = Field(default= None, primary_key= True)
     name: str = Field()
-    first_name: str = Field()
     birthday: date = Field()
 
     books: list["Book"] = Relationship(back_populates="author")
 
 
 class AuthorResponse(BaseModel):
-    id: int
+    id: int 
     name: str
-    first_name: str
     birthday: date
 
-class Create(BaseModel):
-    id: int
+    class Config:
+        orm_mode = True
+
+
+class AuthorCreate(BaseModel):
     name: str
-    first_name: str
     birthday: date
 
-class Update(BaseModel):
+    class Config:
+        orm_mode = True
+
+class AuthorUpdate(BaseModel):
     id: int
     name: str | None = None
-    first_name: str | None = None
     birthday: date | None = None 
 
 
@@ -44,15 +46,20 @@ class Genre(SQLModel, table = True):
     books: list["Book"] = Relationship(back_populates="genre")
 
 
-class Response(BaseModel):
+class GenreResponse(BaseModel):
     id: int
     genre: str
 
-class Create(BaseModel):
-    id: int
+    class Config:
+        orm_mode = True
+
+class GenreCreate(BaseModel):
     genre: str
 
-class Update(BaseModel):
+    class Config:
+        orm_mode = True
+
+class GenreUpdate(BaseModel):
     id: int
     genre: str | None = None
 
@@ -68,17 +75,22 @@ class Publisher(SQLModel, table = True):
 
 
 
-class Response(BaseModel):
+class PublisherResponse(BaseModel):
     id: int
-    name: str
+    publisher: str
 
-class Create(BaseModel):
-    id: int
-    name: str
+    class Config:
+        orm_mode = True
+
+class PublisherCreate(BaseModel):
+    publisher: str
+
+    class Config:
+        orm_mode = True
 
 class Update(BaseModel):
     id: int
-    name: str | None = None
+    publisher: str | None = None
 
 
 
@@ -107,24 +119,30 @@ class BookResponse(BaseModel):
     title: str
     author: AuthorResponse
     release: date
-    genre_id: int
+    genre: GenreResponse
     description: str
     price: float
     age_recommendation: int
-    publisher_id: int 
+    publisher: PublisherResponse
     stock: int
     
     class Config:
         orm_mode = True
 
 class BookCreate(BaseModel):
+    isbn: str
     title : str
-    author : Author 
-    genre : str
+    author : AuthorCreate
+    release: date
+    genre : GenreCreate
     description : str
-    price : str
+    price : float
     age_recommendation : int
-    publisher : str
+    publisher : PublisherCreate
+    stock: int
+
+    class Config:
+        orm_mode = True
 
 class BookUpdate(BaseModel):
     isbn: str

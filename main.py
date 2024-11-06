@@ -6,7 +6,7 @@ from typing import Annotated
 from datetime import date
 from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
 from inventory.inventory_service import InventoryService
-from inventory.models import Book, BookResponse, Author, AuthorResponse, Genre, Publisher
+from inventory.models import Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, Publisher
 
 
 
@@ -40,7 +40,7 @@ rep = BooksRepository(session)
 author_rep = AuthorRepository(session)
 genre_rep = GenreRepository(session)
 publisher_rep = PublisherRepository(session)
-service = InventoryService()
+service = InventoryService(session)
 
 
 #Book
@@ -55,13 +55,12 @@ async def get_book_by_isbn(book_isbn: str):
     return rep.get_by_isbn(book_isbn) 
 
 @app.delete("/book/{isbn}", response_model=Book)
-async def delete_book_by_isbn(isbn: str): # Darf nichts zurückliefern? 
-    return rep.delete_by_isbn(isbn) #{"book:", book_isbn, " deleted"}
+async def delete_book_by_isbn(isbn: str): 
+    return rep.delete_by_isbn(isbn) 
 
-@app.post("/book", response_model=Book)
-async def create_book(book: Book):
-    rep.create(book)
-    return book
+@app.post("/book", response_model=BookResponse)
+async def create_book(book: BookCreate):
+    return rep.create(book)
 
 @app.put("/book/{isbn}", response_model=Book)
 async def update_book(isbn: str, new_book :Book):

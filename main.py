@@ -5,7 +5,7 @@ from fastapi import FastAPI, Depends
 from typing import Annotated
 from datetime import date
 from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
-from inventory.inventory_service import InventoryService
+from inventory.inventory_service import BookService
 from inventory.models import Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, Publisher
 
 
@@ -40,38 +40,43 @@ rep = BooksRepository(session)
 author_rep = AuthorRepository(session)
 genre_rep = GenreRepository(session)
 publisher_rep = PublisherRepository(session)
-service = InventoryService(session)
+book_service = BookService(session)
 
 
 #Book
 @app.get("/books", response_model=list[BookResponse])
 async def get_books():
-    books = rep.get_all()
+    books = book_service.get_all_books()
     #print (books)
     return books
 
-@app.get("/book/{book_isbn}", response_model=BookResponse)
-async def get_book_by_isbn(book_isbn: str):
-    return rep.get_by_isbn(book_isbn) 
+@app.get("/book/{isbn}", response_model=BookResponse)
+async def get_book_by_isbn(isbn: str):
+    return book_service.get_book_by_isbn(isbn)
 
 @app.delete("/book/{isbn}", response_model=Book)
 async def delete_book_by_isbn(isbn: str): 
-    return rep.delete_by_isbn(isbn) 
+    return book_service.delete_book_by_isbn(isbn) 
 
 @app.post("/book", response_model=BookResponse)
 async def create_book(book: BookCreate):
-    return rep.create(book)
+    return book_service.create(book)
 
 @app.put("/book/{isbn}", response_model=Book)
 async def update_book(isbn: str, new_book :Book):
     # service.new_author(book, s)
     # service.new_genre(book, s)
     
-    return rep.update(isbn, new_book)
+    return book_service.update(isbn, new_book)
 
 
 
 #Auhtor
+#alle autoren rasugeben 
+@app.get("/author", response_model=list[Author])
+async def get_authors():
+    return author_rep.get_all()
+
 @app.get("/author/{author_id}/books", response_model=list[Book])
 async def get_books_by_author(auhtor_id:int):
     return author_rep.get_books_by_id(auhtor_id)
@@ -79,6 +84,10 @@ async def get_books_by_author(auhtor_id:int):
 
 
 #Genre
+@app.get("/genre", response_model=list[Genre])
+async def get_genres():
+    return genre_rep.get_all()
+
 @app.get("/genre/{genre_id}/books", response_model= list[Book])
 async def get_books_by_genre(genre_id: int):
     return genre_rep.get_books_by_id(genre_id)
@@ -86,6 +95,10 @@ async def get_books_by_genre(genre_id: int):
 
 
 #Publisher
+@app.get("/publisher", response_model=list[Publisher])
+async def get_publishers():
+    return publisher_rep.get_all()
+
 @app.get("/publisher/{publisher_id}/books", response_model= list[Book])
 async def get_books_by_genre(publisher_id: int):
     return publisher_rep.get_books_by_id(publisher_id)

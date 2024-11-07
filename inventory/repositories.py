@@ -2,8 +2,9 @@ from sqlmodel import SQLModel
 from sqlalchemy import select, Engine
 from sqlalchemy.orm import Session, joinedload, selectinload, subqueryload
 import uuid
-from .models import Author, AuthorResponse, Book, BookCreate, Genre, GenreResponse, Publisher, BookResponse, PublisherResponse
-from .inventory_service import InventoryService
+from .models import Author, AuthorResponse, AuthorCreate, Book, BookCreate, Genre, GenreResponse, GenreCreate, Publisher, PublisherCreate, BookResponse, PublisherResponse
+#from .inventory_service import InventoryService
+#nur datenbankabfragen 
 
 
 #Author
@@ -11,7 +12,7 @@ class AuthorRepository:
 
     def __init__(self, session: Session):
         self.session = session
-        self.service = InventoryService(session)
+       # self.service = InventoryService(session)
 
     def get_all(self):
         #with Session(self.engine) as s:
@@ -81,12 +82,54 @@ class BooksRepository:
         self.session.commit()
         return result 
     
-    def create(self, book: BookCreate):
-        # stmt = select(Book).options(subqueryload(Book.author)).where(Book.isbn == book.isbn)
-        # result = self.session.execute(stmt).first()
-        author = InventoryService(self.session).new_author(book.author)
-        genre = InventoryService(self.session).new_genre(book.genre)
-        publisher = InventoryService(self.session).new_publisher(book.publisher)
+    # def create(self, book: BookCreate):
+    #     # stmt = select(Book).options(subqueryload(Book.author)).where(Book.isbn == book.isbn)
+    #     # result = self.session.execute(stmt).first()
+    #     # author = InventoryService(self.session).new_author(book.author)
+    #     # genre = InventoryService(self.session).new_genre(book.genre)
+    #     # publisher = InventoryService(self.session).new_publisher(book.publisher)
+    #     new_book = Book(
+    #         isbn = book.isbn,
+    #         title = book.title,
+    #         author= author,
+    #         release = book.release,
+    #         genre = genre,
+    #         description = book.description,
+    #         price = book.price,
+    #         age_recommendation = book.age_recommendation,
+    #         publisher = publisher,
+    #         stock = book.stock
+
+    #     )
+    #     self.session.add(new_book)
+    #     self.session.commit()
+    #     self.session.refresh(new_book)
+
+    #     book_resp = BookResponse(
+    #         isbn = new_book.isbn,
+    #         title = new_book.title,
+    #         author= AuthorResponse(
+    #             id = new_book.author.id,
+    #             name = new_book.author.name,
+    #             birthday = new_book.author.birthday
+    #         ),
+    #         release = new_book.release,
+    #         genre= GenreResponse(
+    #             id = new_book.genre.id,
+    #             genre = new_book.genre.genre
+    #         ),
+    #         description = new_book.description,
+    #         price = new_book.price,
+    #         age_recommendation = new_book.age_recommendation,
+    #         publisher = PublisherResponse(
+    #             id = new_book.publisher.id,
+    #             publisher = new_book.publisher.publisher
+    #         ),
+    #         stock = new_book.stock
+    #     )
+    #     return book_resp   
+    
+    def mapping_book(self, book: Book, author: Author, genre: Genre, publisher: Publisher):
         new_book = Book(
             isbn = book.isbn,
             title = book.title,
@@ -126,7 +169,51 @@ class BooksRepository:
             ),
             stock = new_book.stock
         )
-        return book_resp   
+        return book_resp
+    
+    def check_author(self, author: AuthorCreate) -> Author:
+        stmt = select(Author).where(Author.name == author.name) #request zu viel, lieber id geben, abgleichen und dann mappen
+        result = self.session.exec(stmt).scalars().first()
+        if not result:
+            new_author = Author(
+                name = author.name,
+                birthday = author.birthday
+            )
+            self.session.add(new_author)
+            self.session.commit()
+            self.session.refresh(new_author)
+            return new_author
+        else:
+            return result
+        
+    def check_genre(self, genre: GenreCreate) -> Genre:
+        stmt = select(Genre).where(Genre.genre == genre.genre)
+        result = self.session.exec(stmt).scalars().first()
+        if not result:
+            new_genre = Genre(
+                genre = genre.genre
+            )
+            self.session.add(new_genre)
+            self.session.commit()
+            self.session.refresh(new_genre)
+            return new_genre
+        else:
+            return result
+        
+    def check_publisher(self, publisher: PublisherCreate) -> Publisher:
+        stmt = select(Publisher).where(Publisher.publisher == publisher.publisher)
+        result = self.session.exec(stmt).scalars().first()
+        if not result:
+            new_publisher = Publisher(
+                publisher = publisher.publisher
+            )
+            self.session.add(new_publisher)
+            self.session.commit()
+            self.session.refresh(new_publisher)
+            return new_publisher
+        else:
+            return result 
+
 
     def update(self, isbn: str, new_book: Book):
         stmt = select(Book).options(subqueryload(Book.author)).where(Book.isbn == isbn)
@@ -177,9 +264,11 @@ class GenreRepository:
         self.session = session
 
     def get_all(self):
-        stmt = select(Genre)
-        result = self.session.exec(stmt)
-        genres = result.all()
+        #with Session(self.engine) as s:
+        genres = self.session.query(Genre).all()
+            # stmt = select(Book)
+            # result = s.execute(stmt)
+            # books = result.all()
         return genres
     
     def get_by_id(self, id_genre: int):
@@ -213,10 +302,12 @@ class PublisherRepository:
         self.session = session
 
     def get_all(self):
-        stmt = select(Publisher)
-        result = self.session.exec(stmt)
-        publisher = result.all()
-        return publisher
+        #with Session(self.engine) as s:
+        publishers = self.session.query(Publisher).all()
+            # stmt = select(Book)
+            # result = s.execute(stmt)
+            # books = result.all()
+        return publishers
     
     def get_by_id(self, id_publisher: int):
         return self.session.get(Publisher, id_publisher)

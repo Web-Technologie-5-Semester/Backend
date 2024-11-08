@@ -2,7 +2,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select, Engine
 from inventory.models import AuthorCreate, Book, BookCreate, Author, Genre, Publisher, GenreCreate
-from inventory.repositories import BooksRepository, AuthorRepository
+from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
 # keine datenbankabfragen 
 
 
@@ -47,14 +47,36 @@ class AuthorService():
     def get_all_authors(self):
         return self.author_rep.get_all()
     
-    def get_author_by_isbn(self, isbn: str):
-        return self.author_rep.get_books_by_id(isbn)
+    def get_books_by_author(self, id: str):
+        return self.author_rep.get_books_by_id(id)
 
 
+class GenreService():
+    session :Session = None
+
+    def __init__(self, session):
+        self.session = session
+        self.genre_rep = GenreRepository(session)
+
+    def get_all_genres(self):
+        return self.genre_rep.get_all()
     
+    def get_books_by_genre(self, id: str):
+        return self.genre_rep.get_books_by_id(id)
 
 
+class PublisherService():
+    session :Session = None
 
+    def __init__(self, session):
+        self.session = session
+        self.publisher_rep = PublisherRepository(session)
+
+    def get_all_publishers(self):
+        return self.publisher_rep.get_all()
+    
+    def get_books_by_publisher(self, id: str):
+        return self.publisher_rep.get_books_by_id(id)
 
 
 # class InventoryService():

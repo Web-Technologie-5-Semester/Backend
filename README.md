@@ -13,3 +13,7 @@
 
 3. start fastAPI
 - fastapi dev main.py
+
+4. Migrations
+erstellen: pipenv run alembic revision --autogenerate -m "Beschreibung der Migration"
+anwenden: pipenv run alembic upgrade head

@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import pool, MetaData
 
 from alembic import context
 from main import sql_url
@@ -16,6 +16,12 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+metadata = MetaData()
+for model in [Book, Author, Genre, Publisher]:
+    model.metadata = metadata  # Weist allen Modellen dasselbe MetaData zu
+
+target_metadata = metadata
+
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
@@ -27,6 +33,7 @@ target_metadata = [Book.metadata, Author.metadata, Genre.metadata, Publisher.met
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 config.set_main_option("sqlalchemy.url", sql_url)
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.

@@ -1,7 +1,7 @@
 #wenn neues buch angelegt, muss schauen ob autor schon da, wenn nicht, dann neuen anlegen, wenn ja dann zu autor repository 
 from sqlalchemy.orm import Session
 from sqlalchemy import select, Engine
-from inventory.models import AuthorCreate, Book, BookCreate, Author, Genre, Publisher, GenreCreate
+from inventory.models import AuthorCreate, Book, BookCreate, Author, Genre, Publisher, GenreCreate, PublisherCreate
 from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
 # keine datenbankabfragen 
 
@@ -105,64 +105,12 @@ class PublisherService():
     def delete_publisher_by_id(self, id: int):
         return self.publisher_rep.delete_by_id(id)
     
-    def create(self, author: AuthorCreate):
-        author = self.author_rep.check_author(author.author)
-        new_author = self.author_rep.mapping_author( author)
-        return new_author
+    def create(self, publisher: PublisherCreate):
+        publisher = self.publisher_rep.check_author(publisher.publisher)
+        new_publisher = self.publisher_rep.mapping_publisher(publisher)
+        return new_publisher
     
-    def update(self, id: int, new_author: Author):
-        author = self.author_rep.update(id, new_author)
-        return author
-
-
-# class InventoryService():
-#     session :Session = None
-
-#     def __init__(self, session):
-#         self.session = session
-
-
-#     def new_author(self, author: AuthorCreate) -> Author:
-#         stmt = select(Author).where(Author.name == author.name) #request zu viel, lieber id geben, abgleichen und dann mappen
-#         result = self.session.exec(stmt).scalars().first()
-#         if not result:
-#             new_author = Author(
-#                 name = author.name,
-#                 birthday = author.birthday
-#             )
-#             self.session.add(new_author)
-#             self.session.commit()
-#             self.session.refresh(new_author)
-#             return new_author
-#         else:
-#             return result
-        
+    def update(self, id: int, new_publisher: Publisher):
+        publisher = self.publisher_rep.update(id, new_publisher)
+        return publisher
     
-#     def new_genre(self, genre: GenreCreate) -> Genre:
-#         stmt = select(Genre).where(Genre.genre == genre.genre)
-#         result = self.session.exec(stmt).scalars().first()
-#         if not result:
-#             new_genre = Genre(
-#                 genre = genre.genre
-#             )
-#             self.session.add(new_genre)
-#             self.session.commit()
-#             self.session.refresh(new_genre)
-#             return new_genre
-#         else:
-#             return result
-        
-    
-#     def new_publisher(self, publisher: Publisher) -> Publisher:
-#         stmt = select(Publisher).where(Publisher.publisher == publisher.publisher)
-#         result = self.session.exec(stmt).scalars().first()
-#         if not result:
-#             new_publisher = Publisher(
-#                 publisher = publisher.publisher
-#             )
-#             self.session.add(new_publisher)
-#             self.session.commit()
-#             self.session.refresh(new_publisher)
-#             return new_publisher
-#         else:
-#             return result    

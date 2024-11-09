@@ -12,22 +12,16 @@ class AuthorRepository:
 
     def __init__(self, session: Session):
         self.session = session
-       # self.service = InventoryService(session)
+
 
     def get_all(self):
-        #with Session(self.engine) as s:
         authors = self.session.query(Author).all()
-        # stmt = select(Author)
-        #     result = s.exec(stmt)
-        #     authors = result.all()
         return authors
     
     def get_books_by_id(self, id_author: int):
         stmt = select(Book).where(Book.author_id == id_author)
         result = self.session.execute(stmt).scalars().all()
         return result
-        #with Session(self.engine) as s:
-        #return s.get(Author, id_author)
         
     def delete_by_id(self, id_author: int) -> None:
         self.session.delete(Author, id_author)
@@ -48,7 +42,7 @@ class AuthorRepository:
         else:
             return result
         
-    def mapping_book(self,  author: Author):
+    def mapping_author(self,  author: Author):
         new_author = Author(
             id = author.id,
             name = author.name,
@@ -83,8 +77,6 @@ class AuthorRepository:
         self.session.add(result)
         self.session.commit()
         self.session.refresh(result)
-        # self.create(result, s)
-        # s.commit()
         return result
     
 
@@ -268,15 +260,55 @@ class GenreRepository:
     def delete_by_id(self, id_genre: int) -> None:
         self.session.delete(Genre, id_genre)
         self.session.commit()
+
+    def check_genre(self, genre: GenreCreate) -> Genre:
+        stmt = select(Genre).where(Genre.genre == genre.genre) 
+        result = self.session.exec(stmt).scalars().first()
+        if not result:
+            new_genre = Genre(
+                genre = genre.genre,
+            )
+            self.session.add(new_genre)
+            self.session.commit()
+            self.session.refresh(new_genre)
+            return new_genre
+        else:
+            return result
+        
+    def mapping_genre(self,  genre: Genre):
+        new_genre = Genre(
+            id = genre.id,
+            genre = genre.genre
+        )
+        self.session.add(new_genre)
+        self.session.commit()
+        self.session.refresh(new_genre)
+
+        genre_resp = GenreResponse(
+            id = new_genre.genre.id,
+            genre = new_genre.genre.genre
+        )
+
+        return genre_resp
     
     def create(self, genre: Genre):
         self.session.add(genre)   
         self.session.commit()
-        return genre    
+        return genre  
 
-    def update(self, genre: Genre):
-        self.create(genre)
-        return genre
+    def update(self, id: int, new_genre: Genre):
+        stmt = select(Genre).where(Genre.id == id)
+        result :Genre = self.session.execute(stmt).scalars().first()
+        for key,value in dict(new_genre).items():
+            if key != "id":
+                if hasattr(result, key):
+                    setattr(result, key, value)
+                else:
+                    raise Exception(f'inexistent attribute {key}')
+        self.session.add(result)
+        self.session.commit()
+        self.session.refresh(result)
+        return result
     
 
 
@@ -307,11 +339,51 @@ class PublisherRepository:
         self.session.delete(Publisher, id_publisher)
         self.session.commit()
     
+    def check_publisher(self, publisher: PublisherCreate) -> Publisher:
+        stmt = select(Publisher).where(Publisher.genre == publisher.publisher) 
+        result = self.session.exec(stmt).scalars().first()
+        if not result:
+            new_publisher = Publisher(
+                publisher = publisher.publisher,
+            )
+            self.session.add(new_publisher)
+            self.session.commit()
+            self.session.refresh(new_publisher)
+            return new_publisher
+        else:
+            return result
+        
+    def mapping_publisher(self, publisher: Publisher):
+        new_publisher = Publisher(
+            id = publisher.id,
+            publisher = publisher.publisher
+        )
+        self.session.add(new_publisher)
+        self.session.commit()
+        self.session.refresh(new_publisher)
+
+        publisher_resp = PublisherResponse(
+            id = new_publisher.publisher.id,
+            publisher = new_publisher.publisher.publisher
+        )
+
+        return publisher_resp
+    
     def create(self, publisher: Publisher):
         self.session.add(publisher)   
         self.session.commit()
-        return publisher   
-
-    def update(self, publisher: Publisher):
-        self.create(publisher)
         return publisher
+
+    def update(self, id: int, new_publisher: Publisher):
+        stmt = select(Publisher).where(Publisher.id == id)
+        result :Publisher = self.session.execute(stmt).scalars().first()
+        for key,value in dict(new_publisher).items():
+            if key != "id":
+                if hasattr(result, key):
+                    setattr(result, key, value)
+                else:
+                    raise Exception(f'inexistent attribute {key}')
+        self.session.add(result)
+        self.session.commit()
+        self.session.refresh(result)
+        return result

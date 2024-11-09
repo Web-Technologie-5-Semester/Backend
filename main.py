@@ -6,7 +6,7 @@ from typing import Annotated
 from datetime import date
 from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
 from inventory.inventory_service import BookService, AuthorService, GenreService, PublisherService
-from inventory.models import Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, Publisher
+from inventory.models import AuthorCreate, Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, GenreCreate, GenreResponse, Publisher, PublisherCreate, PublisherResponse
 #from user.models import User
 
 
@@ -67,9 +67,6 @@ async def create_book(book: BookCreate):
 
 @app.put("/book/{isbn}", response_model=Book)
 async def update_book(isbn: str, new_book :Book):
-    # service.new_author(book, s)
-    # service.new_genre(book, s)
-    
     return book_service.update(isbn, new_book)
 
 
@@ -82,6 +79,18 @@ async def get_authors():
 async def get_books_by_author(auhtor_id:int):
     return author_service.get_books_by_author(auhtor_id)
 
+@app.delete("/author/{author_id}", response_model=Author)
+async def delete_author_by_id(id: int): 
+    return author_service.delete_author_by_id(id) 
+
+@app.post("/author", response_model=AuthorResponse)
+async def create_author(author: AuthorCreate):
+    return book_service.create(author)
+
+@app.put("/author/{author_id}", response_model=Author)
+async def update_author(id: int, new_author: Author):
+    return author_service.update(id, new_author)
+
 
 #Genre
 @app.get("/genre", response_model=list[Genre])
@@ -92,6 +101,18 @@ async def get_genres():
 async def get_books_by_genre(genre_id: int):
     return genre_service.get_books_by_genre(genre_id)
 
+@app.delete("/genre/{genre_id}", response_model=Genre)
+async def delete_genre_by_id(id: int): 
+    return genre_service.delete_genre_by_id(id) 
+
+@app.post("/genre", response_model=GenreResponse)
+async def create_genre(genre: GenreCreate):
+    return genre_service.create(genre)
+
+@app.put("/genre/{genre_id}", response_model=Genre)
+async def update_genre(id: int, new_genre: Genre):
+    return genre_service.update(id, new_genre)
+
 
 #Publisher
 @app.get("/publisher", response_model=list[Publisher])
@@ -101,6 +122,18 @@ async def get_publishers():
 @app.get("/publisher/{publisher_id}/books", response_model= list[Book])
 async def get_books_by_genre(publisher_id: int):
     return publisher_service.get_books_by_publisher(publisher_id)
+
+@app.delete("/publisher/{publisher_id}", response_model=Publisher)
+async def delete_publisher_by_id(id: int): 
+    return publisher_service.delete_author_by_id(id) 
+
+@app.post("/author", response_model=PublisherResponse)
+async def create_author(publisher: PublisherCreate):
+    return publisher_service.create(publisher)
+
+@app.put("/publisher/{publisher_id}", response_model=Publisher)
+async def update_author(id: int, new_publisher: Publisher):
+    return publisher_service.update(id, new_publisher)
 
 
 #############################################################################

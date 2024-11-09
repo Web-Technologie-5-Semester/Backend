@@ -49,6 +49,18 @@ class AuthorService():
     
     def get_books_by_author(self, id: str):
         return self.author_rep.get_books_by_id(id)
+    
+    def delete_author_by_id(self, id: int):
+        return self.author_rep.delete_by_id(id)
+    
+    def create(self, author: AuthorCreate):
+        author = self.author_rep.check_author(author.author)
+        new_author = self.author_rep.mapping_author( author)
+        return new_author
+    
+    def update(self, id: int, new_author: Author):
+        author = self.author_rep.update(id, new_author)
+        return author
 
 
 class GenreService():
@@ -63,6 +75,18 @@ class GenreService():
     
     def get_books_by_genre(self, id: str):
         return self.genre_rep.get_books_by_id(id)
+    
+    def delete_genre_by_id(self, id: int):
+        return self.genre_rep.delete_by_id(id)
+    
+    def create(self, genre: GenreCreate):
+        genre = self.genre_rep.check_genre(genre.genre)
+        new_genre = self.genre_rep.mapping_genre(genre)
+        return new_genre
+    
+    def update(self, id: int, new_genre: Genre):
+        genre = self.genre_rep.update(id, new_genre)
+        return genre
 
 
 class PublisherService():
@@ -77,6 +101,18 @@ class PublisherService():
     
     def get_books_by_publisher(self, id: str):
         return self.publisher_rep.get_books_by_id(id)
+    
+    def delete_publisher_by_id(self, id: int):
+        return self.publisher_rep.delete_by_id(id)
+    
+    def create(self, author: AuthorCreate):
+        author = self.author_rep.check_author(author.author)
+        new_author = self.author_rep.mapping_author( author)
+        return new_author
+    
+    def update(self, id: int, new_author: Author):
+        author = self.author_rep.update(id, new_author)
+        return author
 
 
 # class InventoryService():

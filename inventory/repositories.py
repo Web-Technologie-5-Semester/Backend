@@ -32,15 +32,60 @@ class AuthorRepository:
     def delete_by_id(self, id_author: int) -> None:
         self.session.delete(Author, id_author)
         self.session.commit()
+
+    def check_author(self, author: AuthorCreate) -> Author:
+        stmt = select(Author).where(Author.name == author.name) #request zu viel, lieber id geben, abgleichen und dann mappen
+        result = self.session.exec(stmt).scalars().first()
+        if not result:
+            new_author = Author(
+                name = author.name,
+                birthday = author.birthday
+            )
+            self.session.add(new_author)
+            self.session.commit()
+            self.session.refresh(new_author)
+            return new_author
+        else:
+            return result
+        
+    def mapping_book(self,  author: Author):
+        new_author = Author(
+            id = author.id,
+            name = author.name,
+            birthday = author.birthday
+        )
+        self.session.add(new_author)
+        self.session.commit()
+        self.session.refresh(new_author)
+
+        author_resp = AuthorResponse(
+            id = new_author.author.id,
+            name = new_author.author.name,
+            birthday = new_author.author.birthday
+        )
+
+        return author_resp
     
     def create(self, author: Author):
         self.session.add(author)   
         self.session.commit()
         return author    
 
-    def update(self, author: Author):
-        self.create(author)
-        return author
+    def update(self, id: int, new_author: Author):
+        stmt = select(Author).where(Author.id == id)
+        result :Author = self.session.execute(stmt).scalars().first()
+        for key,value in dict(new_author).items():
+            if key != "id":
+                if hasattr(result, key):
+                    setattr(result, key, value)
+                else:
+                    raise Exception(f'inexistent attribute {key}')
+        self.session.add(result)
+        self.session.commit()
+        self.session.refresh(result)
+        # self.create(result, s)
+        # s.commit()
+        return result
     
 
 
@@ -54,25 +99,13 @@ class BooksRepository:
 
     
     def get_all(self):
-        #with Session(self.engine) as s:
         books = self.session.query(Book).all()
-            # stmt = select(Book)
-            # result = s.execute(stmt)
-            # books = result.all()
         return books
     
     def get_by_isbn(self, isbn: str):
-        #with Session(self.engine) as s:
         stmt = select(Book).options(subqueryload(Book.author)).where(Book.isbn == isbn)
-        #stmt = select(Book).where(Book.isbn == isbn)
         result = self.session.execute(stmt).scalars().first()
-
-        return result #s.get(Book, isbn)
-        
-        
-    # def get_by_author(self, author: str):
-    #     with Session(self.engine) as s:
-    #         return s.get(Book, author)
+        return result 
         
     def delete_by_isbn(self, isbn: str):
         #with Session(self.engine) as s:
@@ -80,54 +113,7 @@ class BooksRepository:
         result = self.session.execute(stmt).scalars().first()
         self.session.delete(result)
         self.session.commit()
-        return result 
-    
-    # def create(self, book: BookCreate):
-    #     # stmt = select(Book).options(subqueryload(Book.author)).where(Book.isbn == book.isbn)
-    #     # result = self.session.execute(stmt).first()
-    #     # author = InventoryService(self.session).new_author(book.author)
-    #     # genre = InventoryService(self.session).new_genre(book.genre)
-    #     # publisher = InventoryService(self.session).new_publisher(book.publisher)
-    #     new_book = Book(
-    #         isbn = book.isbn,
-    #         title = book.title,
-    #         author= author,
-    #         release = book.release,
-    #         genre = genre,
-    #         description = book.description,
-    #         price = book.price,
-    #         age_recommendation = book.age_recommendation,
-    #         publisher = publisher,
-    #         stock = book.stock
-
-    #     )
-    #     self.session.add(new_book)
-    #     self.session.commit()
-    #     self.session.refresh(new_book)
-
-    #     book_resp = BookResponse(
-    #         isbn = new_book.isbn,
-    #         title = new_book.title,
-    #         author= AuthorResponse(
-    #             id = new_book.author.id,
-    #             name = new_book.author.name,
-    #             birthday = new_book.author.birthday
-    #         ),
-    #         release = new_book.release,
-    #         genre= GenreResponse(
-    #             id = new_book.genre.id,
-    #             genre = new_book.genre.genre
-    #         ),
-    #         description = new_book.description,
-    #         price = new_book.price,
-    #         age_recommendation = new_book.age_recommendation,
-    #         publisher = PublisherResponse(
-    #             id = new_book.publisher.id,
-    #             publisher = new_book.publisher.publisher
-    #         ),
-    #         stock = new_book.stock
-    #     )
-    #     return book_resp   
+        return result   
     
     def mapping_book(self, book: Book, author: Author, genre: Genre, publisher: Publisher):
         new_book = Book(
@@ -171,20 +157,20 @@ class BooksRepository:
         )
         return book_resp
     
-    def check_author(self, author: AuthorCreate) -> Author:
-        stmt = select(Author).where(Author.name == author.name) #request zu viel, lieber id geben, abgleichen und dann mappen
-        result = self.session.exec(stmt).scalars().first()
-        if not result:
-            new_author = Author(
-                name = author.name,
-                birthday = author.birthday
-            )
-            self.session.add(new_author)
-            self.session.commit()
-            self.session.refresh(new_author)
-            return new_author
-        else:
-            return result
+    # def check_author(self, author: AuthorCreate) -> Author:
+    #     stmt = select(Author).where(Author.name == author.name) #request zu viel, lieber id geben, abgleichen und dann mappen
+    #     result = self.session.exec(stmt).scalars().first()
+    #     if not result:
+    #         new_author = Author(
+    #             name = author.name,
+    #             birthday = author.birthday
+    #         )
+    #         self.session.add(new_author)
+    #         self.session.commit()
+    #         self.session.refresh(new_author)
+    #         return new_author
+    #     else:
+    #         return result
         
     def check_genre(self, genre: GenreCreate) -> Genre:
         stmt = select(Genre).where(Genre.genre == genre.genre)

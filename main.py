@@ -5,8 +5,9 @@ from fastapi import FastAPI, Depends
 from typing import Annotated
 from datetime import date
 from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
-from inventory.inventory_service import InventoryService
-from inventory.models import Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, Publisher
+from inventory.inventory_service import BookService, AuthorService, GenreService, PublisherService
+from inventory.models import AuthorCreate, Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, GenreCreate, GenreResponse, Publisher, PublisherCreate, PublisherResponse
+#from user.models import User
 
 
 
@@ -36,61 +37,109 @@ app = FastAPI(lifespan=lifespan)
 
 
 
-rep = BooksRepository(session)
 author_rep = AuthorRepository(session)
 genre_rep = GenreRepository(session)
 publisher_rep = PublisherRepository(session)
-service = InventoryService(session)
+book_service = BookService(session)
+author_service = AuthorService(session)
+genre_service = GenreService(session)
+publisher_service = PublisherService(session)
 
 
 #Book
 @app.get("/books", response_model=list[BookResponse])
 async def get_books():
-    books = rep.get_all()
+    books = book_service.get_all_books()
     #print (books)
     return books
 
-@app.get("/book/{book_isbn}", response_model=BookResponse)
-async def get_book_by_isbn(book_isbn: str):
-    return rep.get_by_isbn(book_isbn) 
+@app.get("/book/{isbn}", response_model=BookResponse)
+async def get_book_by_isbn(isbn: str):
+    return book_service.get_book_by_isbn(isbn)
 
 @app.delete("/book/{isbn}", response_model=Book)
 async def delete_book_by_isbn(isbn: str): 
-    return rep.delete_by_isbn(isbn) 
+    return book_service.delete_book_by_isbn(isbn) 
 
 @app.post("/book", response_model=BookResponse)
 async def create_book(book: BookCreate):
-    return rep.create(book)
+    return book_service.create(book)
 
 @app.put("/book/{isbn}", response_model=Book)
 async def update_book(isbn: str, new_book :Book):
-    # service.new_author(book, s)
-    # service.new_genre(book, s)
-    
-    return rep.update(isbn, new_book)
-
+    return book_service.update(isbn, new_book)
 
 
 #Auhtor
+@app.get("/author", response_model=list[Author])
+async def get_authors():
+    return author_service.get_all_authors()
+
 @app.get("/author/{author_id}/books", response_model=list[Book])
 async def get_books_by_author(auhtor_id:int):
-    return author_rep.get_books_by_id(auhtor_id)
+    return author_service.get_books_by_author(auhtor_id)
 
+@app.delete("/author/{author_id}", response_model=Author)
+async def delete_author_by_id(id: int): 
+    return author_service.delete_author_by_id(id) 
+
+@app.post("/author", response_model=AuthorResponse)
+async def create_author(author: AuthorCreate):
+    return book_service.create(author)
+
+@app.put("/author/{author_id}", response_model=Author)
+async def update_author(id: int, new_author: Author):
+    return author_service.update(id, new_author)
 
 
 #Genre
+@app.get("/genre", response_model=list[Genre])
+async def get_genres():
+    return genre_service.get_all_genres()
+
 @app.get("/genre/{genre_id}/books", response_model= list[Book])
 async def get_books_by_genre(genre_id: int):
-    return genre_rep.get_books_by_id(genre_id)
+    return genre_service.get_books_by_genre(genre_id)
 
+@app.delete("/genre/{genre_id}", response_model=Genre)
+async def delete_genre_by_id(id: int): 
+    return genre_service.delete_genre_by_id(id) 
+
+@app.post("/genre", response_model=GenreResponse)
+async def create_genre(genre: GenreCreate):
+    return genre_service.create(genre)
+
+@app.put("/genre/{genre_id}", response_model=Genre)
+async def update_genre(id: int, new_genre: Genre):
+    return genre_service.update(id, new_genre)
 
 
 #Publisher
+@app.get("/publisher", response_model=list[Publisher])
+async def get_publishers():
+    return publisher_service.get_all_publishers()
+
 @app.get("/publisher/{publisher_id}/books", response_model= list[Book])
 async def get_books_by_genre(publisher_id: int):
-    return publisher_rep.get_books_by_id(publisher_id)
+    return publisher_service.get_books_by_publisher(publisher_id)
+
+@app.delete("/publisher/{publisher_id}", response_model=Publisher)
+async def delete_publisher_by_id(id: int): 
+    return publisher_service.delete_author_by_id(id) 
+
+@app.post("/author", response_model=PublisherResponse)
+async def create_author(publisher: PublisherCreate):
+    return publisher_service.create(publisher)
+
+@app.put("/publisher/{publisher_id}", response_model=Publisher)
+async def update_author(id: int, new_publisher: Publisher):
+    return publisher_service.update(id, new_publisher)
 
 
+#############################################################################
+# @app.get("/users", response_model=list[User])
+# async def get_all_users():
+#     return user_rep.get_all()
 
 if __name__=="__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

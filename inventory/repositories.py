@@ -2,8 +2,9 @@ from sqlmodel import SQLModel
 from sqlalchemy import select, Engine
 from sqlalchemy.orm import Session, joinedload, selectinload, subqueryload
 import uuid
-from .models import Author, AuthorResponse, Book, BookCreate, Genre, GenreResponse, Publisher, BookResponse, PublisherResponse
-from .inventory_service import InventoryService
+from .models import Author, AuthorResponse, AuthorCreate, Book, BookCreate, Genre, GenreResponse, GenreCreate, Publisher, PublisherCreate, BookResponse, PublisherResponse
+#from .inventory_service import InventoryService
+#nur datenbankabfragen 
 
 
 #Author
@@ -11,35 +12,72 @@ class AuthorRepository:
 
     def __init__(self, session: Session):
         self.session = session
-        self.service = InventoryService(session)
+
 
     def get_all(self):
-        #with Session(self.engine) as s:
         authors = self.session.query(Author).all()
-        # stmt = select(Author)
-        #     result = s.exec(stmt)
-        #     authors = result.all()
         return authors
     
     def get_books_by_id(self, id_author: int):
         stmt = select(Book).where(Book.author_id == id_author)
         result = self.session.execute(stmt).scalars().all()
         return result
-        #with Session(self.engine) as s:
-        #return s.get(Author, id_author)
         
     def delete_by_id(self, id_author: int) -> None:
         self.session.delete(Author, id_author)
         self.session.commit()
+
+    def check_author(self, author: AuthorCreate) -> Author:
+        stmt = select(Author).where(Author.name == author.name) #request zu viel, lieber id geben, abgleichen und dann mappen
+        result = self.session.exec(stmt).scalars().first()
+        if not result:
+            new_author = Author(
+                name = author.name,
+                birthday = author.birthday
+            )
+            self.session.add(new_author)
+            self.session.commit()
+            self.session.refresh(new_author)
+            return new_author
+        else:
+            return result
+        
+    def mapping_author(self,  author: Author):
+        new_author = Author(
+            id = author.id,
+            name = author.name,
+            birthday = author.birthday
+        )
+        self.session.add(new_author)
+        self.session.commit()
+        self.session.refresh(new_author)
+
+        author_resp = AuthorResponse(
+            id = new_author.author.id,
+            name = new_author.author.name,
+            birthday = new_author.author.birthday
+        )
+
+        return author_resp
     
     def create(self, author: Author):
         self.session.add(author)   
         self.session.commit()
         return author    
 
-    def update(self, author: Author):
-        self.create(author)
-        return author
+    def update(self, id: int, new_author: Author):
+        stmt = select(Author).where(Author.id == id)
+        result :Author = self.session.execute(stmt).scalars().first()
+        for key,value in dict(new_author).items():
+            if key != "id":
+                if hasattr(result, key):
+                    setattr(result, key, value)
+                else:
+                    raise Exception(f'inexistent attribute {key}')
+        self.session.add(result)
+        self.session.commit()
+        self.session.refresh(result)
+        return result
     
 
 
@@ -53,25 +91,13 @@ class BooksRepository:
 
     
     def get_all(self):
-        #with Session(self.engine) as s:
         books = self.session.query(Book).all()
-            # stmt = select(Book)
-            # result = s.execute(stmt)
-            # books = result.all()
         return books
     
     def get_by_isbn(self, isbn: str):
-        #with Session(self.engine) as s:
         stmt = select(Book).options(subqueryload(Book.author)).where(Book.isbn == isbn)
-        #stmt = select(Book).where(Book.isbn == isbn)
         result = self.session.execute(stmt).scalars().first()
-
-        return result #s.get(Book, isbn)
-        
-        
-    # def get_by_author(self, author: str):
-    #     with Session(self.engine) as s:
-    #         return s.get(Book, author)
+        return result 
         
     def delete_by_isbn(self, isbn: str):
         #with Session(self.engine) as s:
@@ -79,14 +105,9 @@ class BooksRepository:
         result = self.session.execute(stmt).scalars().first()
         self.session.delete(result)
         self.session.commit()
-        return result 
+        return result   
     
-    def create(self, book: BookCreate):
-        # stmt = select(Book).options(subqueryload(Book.author)).where(Book.isbn == book.isbn)
-        # result = self.session.execute(stmt).first()
-        author = InventoryService(self.session).new_author(book.author)
-        genre = InventoryService(self.session).new_genre(book.genre)
-        publisher = InventoryService(self.session).new_publisher(book.publisher)
+    def mapping_book(self, book: Book, author: Author, genre: Genre, publisher: Publisher):
         new_book = Book(
             isbn = book.isbn,
             title = book.title,
@@ -126,7 +147,51 @@ class BooksRepository:
             ),
             stock = new_book.stock
         )
-        return book_resp   
+        return book_resp
+    
+    # def check_author(self, author: AuthorCreate) -> Author:
+    #     stmt = select(Author).where(Author.name == author.name) #request zu viel, lieber id geben, abgleichen und dann mappen
+    #     result = self.session.exec(stmt).scalars().first()
+    #     if not result:
+    #         new_author = Author(
+    #             name = author.name,
+    #             birthday = author.birthday
+    #         )
+    #         self.session.add(new_author)
+    #         self.session.commit()
+    #         self.session.refresh(new_author)
+    #         return new_author
+    #     else:
+    #         return result
+        
+    def check_genre(self, genre: GenreCreate) -> Genre:
+        stmt = select(Genre).where(Genre.genre == genre.genre)
+        result = self.session.exec(stmt).scalars().first()
+        if not result:
+            new_genre = Genre(
+                genre = genre.genre
+            )
+            self.session.add(new_genre)
+            self.session.commit()
+            self.session.refresh(new_genre)
+            return new_genre
+        else:
+            return result
+        
+    def check_publisher(self, publisher: PublisherCreate) -> Publisher:
+        stmt = select(Publisher).where(Publisher.publisher == publisher.publisher)
+        result = self.session.exec(stmt).scalars().first()
+        if not result:
+            new_publisher = Publisher(
+                publisher = publisher.publisher
+            )
+            self.session.add(new_publisher)
+            self.session.commit()
+            self.session.refresh(new_publisher)
+            return new_publisher
+        else:
+            return result 
+
 
     def update(self, isbn: str, new_book: Book):
         stmt = select(Book).options(subqueryload(Book.author)).where(Book.isbn == isbn)
@@ -177,9 +242,11 @@ class GenreRepository:
         self.session = session
 
     def get_all(self):
-        stmt = select(Genre)
-        result = self.session.exec(stmt)
-        genres = result.all()
+        #with Session(self.engine) as s:
+        genres = self.session.query(Genre).all()
+            # stmt = select(Book)
+            # result = s.execute(stmt)
+            # books = result.all()
         return genres
     
     def get_by_id(self, id_genre: int):
@@ -193,15 +260,55 @@ class GenreRepository:
     def delete_by_id(self, id_genre: int) -> None:
         self.session.delete(Genre, id_genre)
         self.session.commit()
+
+    def check_genre(self, genre: GenreCreate) -> Genre:
+        stmt = select(Genre).where(Genre.genre == genre.genre) 
+        result = self.session.exec(stmt).scalars().first()
+        if not result:
+            new_genre = Genre(
+                genre = genre.genre,
+            )
+            self.session.add(new_genre)
+            self.session.commit()
+            self.session.refresh(new_genre)
+            return new_genre
+        else:
+            return result
+        
+    def mapping_genre(self,  genre: Genre):
+        new_genre = Genre(
+            id = genre.id,
+            genre = genre.genre
+        )
+        self.session.add(new_genre)
+        self.session.commit()
+        self.session.refresh(new_genre)
+
+        genre_resp = GenreResponse(
+            id = new_genre.genre.id,
+            genre = new_genre.genre.genre
+        )
+
+        return genre_resp
     
     def create(self, genre: Genre):
         self.session.add(genre)   
         self.session.commit()
-        return genre    
+        return genre  
 
-    def update(self, genre: Genre):
-        self.create(genre)
-        return genre
+    def update(self, id: int, new_genre: Genre):
+        stmt = select(Genre).where(Genre.id == id)
+        result :Genre = self.session.execute(stmt).scalars().first()
+        for key,value in dict(new_genre).items():
+            if key != "id":
+                if hasattr(result, key):
+                    setattr(result, key, value)
+                else:
+                    raise Exception(f'inexistent attribute {key}')
+        self.session.add(result)
+        self.session.commit()
+        self.session.refresh(result)
+        return result
     
 
 
@@ -213,10 +320,12 @@ class PublisherRepository:
         self.session = session
 
     def get_all(self):
-        stmt = select(Publisher)
-        result = self.session.exec(stmt)
-        publisher = result.all()
-        return publisher
+        #with Session(self.engine) as s:
+        publishers = self.session.query(Publisher).all()
+            # stmt = select(Book)
+            # result = s.execute(stmt)
+            # books = result.all()
+        return publishers
     
     def get_by_id(self, id_publisher: int):
         return self.session.get(Publisher, id_publisher)
@@ -230,11 +339,51 @@ class PublisherRepository:
         self.session.delete(Publisher, id_publisher)
         self.session.commit()
     
+    def check_publisher(self, publisher: PublisherCreate) -> Publisher:
+        stmt = select(Publisher).where(Publisher.genre == publisher.publisher) 
+        result = self.session.exec(stmt).scalars().first()
+        if not result:
+            new_publisher = Publisher(
+                publisher = publisher.publisher,
+            )
+            self.session.add(new_publisher)
+            self.session.commit()
+            self.session.refresh(new_publisher)
+            return new_publisher
+        else:
+            return result
+        
+    def mapping_publisher(self, publisher: Publisher):
+        new_publisher = Publisher(
+            id = publisher.id,
+            publisher = publisher.publisher
+        )
+        self.session.add(new_publisher)
+        self.session.commit()
+        self.session.refresh(new_publisher)
+
+        publisher_resp = PublisherResponse(
+            id = new_publisher.publisher.id,
+            publisher = new_publisher.publisher.publisher
+        )
+
+        return publisher_resp
+    
     def create(self, publisher: Publisher):
         self.session.add(publisher)   
         self.session.commit()
-        return publisher   
-
-    def update(self, publisher: Publisher):
-        self.create(publisher)
         return publisher
+
+    def update(self, id: int, new_publisher: Publisher):
+        stmt = select(Publisher).where(Publisher.id == id)
+        result :Publisher = self.session.execute(stmt).scalars().first()
+        for key,value in dict(new_publisher).items():
+            if key != "id":
+                if hasattr(result, key):
+                    setattr(result, key, value)
+                else:
+                    raise Exception(f'inexistent attribute {key}')
+        self.session.add(result)
+        self.session.commit()
+        self.session.refresh(result)
+        return result

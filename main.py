@@ -7,7 +7,7 @@ from datetime import date
 from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
 from inventory.inventory_service import BookService, AuthorService, GenreService, PublisherService
 from inventory.models import AuthorCreate, Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, GenreCreate, GenreResponse, Publisher, PublisherCreate, PublisherResponse
-#from user.models import User
+from user.models import Role, User
 
 
 
@@ -68,6 +68,11 @@ async def create_book(book: BookCreate):
 @app.put("/book/{isbn}", response_model=Book)
 async def update_book(isbn: str, new_book :Book):
     return book_service.update(isbn, new_book)
+
+#such endpunkt
+@app.post("/search", response_model=list[Book])
+async def search(word: str):
+    return book_service.search_book(word)
 
 
 #Auhtor

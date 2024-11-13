@@ -17,10 +17,10 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 metadata = MetaData()
-for model in [Book, Author, Genre, Publisher]:
-    model.metadata = metadata  # Weist allen Modellen dasselbe MetaData zu
-
-target_metadata = metadata
+Book.metadata = metadata
+Author.metadata = metadata
+Genre.metadata = metadata
+Publisher.metadata = metadata
 
 # add your model's MetaData object here
 # for 'autogenerate' support

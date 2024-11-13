@@ -26,15 +26,23 @@ class BookService():
         return self.book_rep.delete_by_isbn(isbn)
     
     def create(self, book: BookCreate):
-        author = self.book_rep.check_author(book.author)
-        genre = self.book_rep.check_genre(book.genre)
-        publisher = self.book_rep.check_publisher(book.publisher)
-        new_book = self.book_rep.mapping_book(book, author, genre, publisher)
+        #author = self.book_rep.check_author(book.author)
+        #genre = self.book_rep.check_genre(book.genre)
+        #publisher = self.book_rep.check_publisher(book.publisher)
+        new_book = self.book_rep.mapping_book(book)
         return new_book
     
     def update(self, isbn: str, new_book: Book):
         book = self.book_rep.update(isbn, new_book)
         return book
+    
+    def search_book(self, word: str) -> list[Book]:
+        books = self.book_rep.get_all()
+        matching_books = []
+        for book in books:
+            if word.lower() in book.title.lower():
+                matching_books.append(book)
+        return matching_books
     
 
 class AuthorService():

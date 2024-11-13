@@ -107,17 +107,17 @@ class BooksRepository:
         self.session.commit()
         return result   
     
-    def mapping_book(self, book: Book, author: Author, genre: Genre, publisher: Publisher):
+    def mapping_book(self, book: Book):
         new_book = Book(
             isbn = book.isbn,
             title = book.title,
-            author= author,
+            author_id= book.author_id,
             release = book.release,
-            genre = genre,
+            genre_id = book.genre_id,
             description = book.description,
             price = book.price,
             age_recommendation = book.age_recommendation,
-            publisher = publisher,
+            publisher_id = book.publisher_id,
             stock = book.stock
 
         )
@@ -205,8 +205,6 @@ class BooksRepository:
         self.session.add(result)
         self.session.commit()
         self.session.refresh(result)
-        # self.create(result, s)
-        # s.commit()
         return result
     
     

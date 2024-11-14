@@ -37,11 +37,14 @@ class BookService():
         return book
     
     def search_book(self, word: str) -> list[Book]:
-        books = self.book_rep.get_all()
+        books = self.book_rep.get_all_info()
         matching_books = []
         for book in books:
-            if word.lower() in book.title.lower():
-                matching_books.append(book)
+            if (word.lower() in book.title.lower()or
+                word.lower() in book.author.name.lower() or
+                word.lower() in book.genre.name.lower() or
+                word.lower() in book.publisher.name.lower()):
+                    matching_books.append(book)
         return matching_books
     
 
@@ -62,8 +65,8 @@ class AuthorService():
         return self.author_rep.delete_by_id(id)
     
     def create(self, author: AuthorCreate):
-        author = self.author_rep.check_author(author.author)
-        new_author = self.author_rep.mapping_author( author)
+        new_author = self.author_rep.check_author(author)
+        #new_author = self.author_rep.mapping_author(current_author)
         return new_author
     
     def update(self, id: int, new_author: Author):
@@ -88,8 +91,8 @@ class GenreService():
         return self.genre_rep.delete_by_id(id)
     
     def create(self, genre: GenreCreate):
-        genre = self.genre_rep.check_genre(genre.genre)
-        new_genre = self.genre_rep.mapping_genre(genre)
+        old_genre = self.genre_rep.check_genre(genre.genre)
+        new_genre = self.genre_rep.mapping_genre(old_genre)
         return new_genre
     
     def update(self, id: int, new_genre: Genre):

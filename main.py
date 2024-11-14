@@ -36,10 +36,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-
-author_rep = AuthorRepository(session)
-genre_rep = GenreRepository(session)
-publisher_rep = PublisherRepository(session)
 book_service = BookService(session)
 author_service = AuthorService(session)
 genre_service = GenreService(session)
@@ -90,7 +86,7 @@ async def delete_author_by_id(id: int):
 
 @app.post("/author", response_model=AuthorResponse)
 async def create_author(author: AuthorCreate):
-    return book_service.create(author)
+    return author_service.create(author)
 
 @app.put("/author/{author_id}", response_model=Author)
 async def update_author(id: int, new_author: Author):
@@ -132,7 +128,7 @@ async def get_books_by_genre(publisher_id: int):
 async def delete_publisher_by_id(id: int): 
     return publisher_service.delete_author_by_id(id) 
 
-@app.post("/author", response_model=PublisherResponse)
+@app.post("/publisher", response_model=PublisherResponse)
 async def create_author(publisher: PublisherCreate):
     return publisher_service.create(publisher)
 
@@ -147,4 +143,4 @@ async def update_author(id: int, new_publisher: Publisher):
 #     return user_rep.get_all()
 
 if __name__=="__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)

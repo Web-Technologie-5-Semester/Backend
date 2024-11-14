@@ -27,7 +27,7 @@ class AuthorRepository:
         self.session.delete(Author, id_author)
         self.session.commit()
 
-    def check_author(self, author: AuthorCreate) -> Author:
+    def check_author(self, author: AuthorCreate):
         stmt = select(Author).where(Author.name == author.name) #request zu viel, lieber id geben, abgleichen und dann mappen
         result = self.session.exec(stmt).scalars().first()
         if not result:
@@ -38,27 +38,34 @@ class AuthorRepository:
             self.session.add(new_author)
             self.session.commit()
             self.session.refresh(new_author)
-            return new_author
-        else:
-            return result
-        
-    def mapping_author(self,  author: Author):
-        new_author = Author(
-            id = author.id,
-            name = author.name,
-            birthday = author.birthday
-        )
-        self.session.add(new_author)
-        self.session.commit()
-        self.session.refresh(new_author)
 
-        author_resp = AuthorResponse(
+            author_resp = AuthorResponse(
             id = new_author.author.id,
             name = new_author.author.name,
             birthday = new_author.author.birthday
         )
 
-        return author_resp
+            return author_resp
+        else:
+            return result
+        
+    # def mapping_author(self,  author: Author):
+    #     new_author = Author(
+    #         id = author.id,
+    #         name = author.name,
+    #         birthday = author.birthday
+    #     )
+    #     self.session.add(new_author)
+    #     self.session.commit()
+    #     self.session.refresh(new_author)
+
+    #     author_resp = AuthorResponse(
+    #         id = new_author.author.id,
+    #         name = new_author.author.name,
+    #         birthday = new_author.author.birthday
+    #     )
+
+    #     return author_resp
     
     def create(self, author: Author):
         self.session.add(author)   
@@ -93,6 +100,11 @@ class BooksRepository:
     def get_all(self):
         books = self.session.query(Book).all()
         return books
+    
+    def get_all_info(self):
+        stmt = select(Book).options(subqueryload(Book.author), subqueryload(Book.genre), subqueryload(Book.publisher))
+        result = self.session.execute(stmt).scalars().all()
+        return result
     
     def get_by_isbn(self, isbn: str):
         stmt = select(Book).options(subqueryload(Book.author)).where(Book.isbn == isbn)
@@ -164,33 +176,33 @@ class BooksRepository:
     #     else:
     #         return result
         
-    def check_genre(self, genre: GenreCreate) -> Genre:
-        stmt = select(Genre).where(Genre.genre == genre.genre)
-        result = self.session.exec(stmt).scalars().first()
-        if not result:
-            new_genre = Genre(
-                genre = genre.genre
-            )
-            self.session.add(new_genre)
-            self.session.commit()
-            self.session.refresh(new_genre)
-            return new_genre
-        else:
-            return result
+    # def check_genre(self, genre: GenreCreate) -> Genre:
+    #     stmt = select(Genre).where(Genre.genre == genre.genre)
+    #     result = self.session.exec(stmt).scalars().first()
+    #     if not result:
+    #         new_genre = Genre(
+    #             genre = genre.genre
+    #         )
+    #         self.session.add(new_genre)
+    #         self.session.commit()
+    #         self.session.refresh(new_genre)
+    #         return new_genre
+    #     else:
+    #         return result
         
-    def check_publisher(self, publisher: PublisherCreate) -> Publisher:
-        stmt = select(Publisher).where(Publisher.publisher == publisher.publisher)
-        result = self.session.exec(stmt).scalars().first()
-        if not result:
-            new_publisher = Publisher(
-                publisher = publisher.publisher
-            )
-            self.session.add(new_publisher)
-            self.session.commit()
-            self.session.refresh(new_publisher)
-            return new_publisher
-        else:
-            return result 
+    # def check_publisher(self, publisher: PublisherCreate) -> Publisher:
+    #     stmt = select(Publisher).where(Publisher.publisher == publisher.publisher)
+    #     result = self.session.exec(stmt).scalars().first()
+    #     if not result:
+    #         new_publisher = Publisher(
+    #             publisher = publisher.publisher
+    #         )
+    #         self.session.add(new_publisher)
+    #         self.session.commit()
+    #         self.session.refresh(new_publisher)
+    #         return new_publisher
+    #     else:
+    #         return result 
 
 
     def update(self, isbn: str, new_book: Book):
@@ -259,7 +271,7 @@ class GenreRepository:
         self.session.delete(Genre, id_genre)
         self.session.commit()
 
-    def check_genre(self, genre: GenreCreate) -> Genre:
+    def check_genre(self, genre: GenreCreate):
         stmt = select(Genre).where(Genre.genre == genre.genre) 
         result = self.session.exec(stmt).scalars().first()
         if not result:
@@ -269,7 +281,12 @@ class GenreRepository:
             self.session.add(new_genre)
             self.session.commit()
             self.session.refresh(new_genre)
-            return new_genre
+
+            genre_resp = GenreResponse(
+            id = new_genre.id,
+            name = new_genre.name
+        )
+            return genre_resp
         else:
             return result
         
@@ -337,7 +354,7 @@ class PublisherRepository:
         self.session.delete(Publisher, id_publisher)
         self.session.commit()
     
-    def check_publisher(self, publisher: PublisherCreate) -> Publisher:
+    def check_publisher(self, publisher: PublisherCreate):
         stmt = select(Publisher).where(Publisher.genre == publisher.publisher) 
         result = self.session.exec(stmt).scalars().first()
         if not result:
@@ -347,7 +364,12 @@ class PublisherRepository:
             self.session.add(new_publisher)
             self.session.commit()
             self.session.refresh(new_publisher)
-            return new_publisher
+
+            publisher_resp = PublisherResponse(
+            id = new_publisher.id,
+            name = new_publisher.name
+        )
+            return publisher_resp
         else:
             return result
         

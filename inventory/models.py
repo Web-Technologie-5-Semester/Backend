@@ -1,8 +1,6 @@
 from pydantic import BaseModel
 from sqlmodel import Field, Session, SQLModel, create_engine, select, Relationship
 from datetime import date
-from sqlalchemy import Column, Text
-from sqlalchemy.dialects.postgresql import TSVECTOR
 
 
 

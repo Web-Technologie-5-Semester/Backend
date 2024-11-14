@@ -6,6 +6,7 @@ from sqlalchemy import pool, MetaData
 from alembic import context
 from main import sql_url
 from inventory.models import Book, Author, Genre, Publisher
+from sqlmodel import SQLModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -16,17 +17,17 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-metadata = MetaData()
-Book.metadata = metadata
-Author.metadata = metadata
-Genre.metadata = metadata
-Publisher.metadata = metadata
+# metadata = MetaData()
+# Book.metadata = metadata
+# Author.metadata = metadata
+# Genre.metadata = metadata
+# Publisher.metadata = metadata
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = [Book.metadata, Author.metadata, Genre.metadata, Publisher.metadata]
+target_metadata = SQLModel.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

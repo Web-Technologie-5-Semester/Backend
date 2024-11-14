@@ -1,13 +1,15 @@
+from fastapi.responses import JSONResponse
 import uvicorn
 from sqlmodel import create_engine, Session, SQLModel
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException, Request
 from typing import Annotated
 from datetime import date
 from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
 from inventory.inventory_service import BookService, AuthorService, GenreService, PublisherService
 from inventory.models import AuthorCreate, Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, GenreCreate, GenreResponse, Publisher, PublisherCreate, PublisherResponse
 from user.models import Role, User
+from inventory.exception import BookException
 
 
 
@@ -35,6 +37,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# @app.exception_handler(BookException)
+# async def book_exception_handler(request: Request, exc: BookException):
+#     return JSONResponse(
+#         status_code=404,
+#         content= {"message": f"Book with ISBN {exc.isbn} does not exist"}
+#     )
 
 book_service = BookService(session)
 author_service = AuthorService(session)
@@ -46,12 +54,14 @@ publisher_service = PublisherService(session)
 @app.get("/books", response_model=list[BookResponse])
 async def get_books():
     books = book_service.get_all_books()
-    #print (books)
     return books
 
 @app.get("/book/{isbn}", response_model=BookResponse)
 async def get_book_by_isbn(isbn: str):
-    return book_service.get_book_by_isbn(isbn)
+    book= book_service.get_book_by_isbn(isbn)
+    # if book is None or isbn != book.isbn:
+    #     raise BookException(isbn=isbn)
+    return book
 
 @app.delete("/book/{isbn}", response_model=Book)
 async def delete_book_by_isbn(isbn: str): 

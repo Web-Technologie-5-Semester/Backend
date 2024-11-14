@@ -91,8 +91,8 @@ class GenreService():
         return self.genre_rep.delete_by_id(id)
     
     def create(self, genre: GenreCreate):
-        old_genre = self.genre_rep.check_genre(genre.genre)
-        new_genre = self.genre_rep.mapping_genre(old_genre)
+        new_genre = self.genre_rep.check_genre(genre)
+        #new_genre = self.genre_rep.mapping_genre(old_genre)
         return new_genre
     
     def update(self, id: int, new_genre: Genre):
@@ -117,8 +117,8 @@ class PublisherService():
         return self.publisher_rep.delete_by_id(id)
     
     def create(self, publisher: PublisherCreate):
-        publisher = self.publisher_rep.check_author(publisher.publisher)
-        new_publisher = self.publisher_rep.mapping_publisher(publisher)
+        new_publisher = self.publisher_rep.check_publisher(publisher)
+        #new_publisher = self.publisher_rep.mapping_publisher(publisher)
         return new_publisher
     
     def update(self, id: int, new_publisher: Publisher):

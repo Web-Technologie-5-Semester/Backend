@@ -272,11 +272,11 @@ class GenreRepository:
         self.session.commit()
 
     def check_genre(self, genre: GenreCreate):
-        stmt = select(Genre).where(Genre.genre == genre.genre) 
+        stmt = select(Genre).where(Genre.genre == genre) 
         result = self.session.exec(stmt).scalars().first()
         if not result:
             new_genre = Genre(
-                genre = genre.genre,
+                name = genre.name
             )
             self.session.add(new_genre)
             self.session.commit()
@@ -290,21 +290,21 @@ class GenreRepository:
         else:
             return result
         
-    def mapping_genre(self,  genre: Genre):
-        new_genre = Genre(
-            id = genre.id,
-            genre = genre.genre
-        )
-        self.session.add(new_genre)
-        self.session.commit()
-        self.session.refresh(new_genre)
+    # def mapping_genre(self,  genre: Genre):
+    #     new_genre = Genre(
+    #         id = genre.id,
+    #         genre = genre.genre
+    #     )
+    #     self.session.add(new_genre)
+    #     self.session.commit()
+    #     self.session.refresh(new_genre)
 
-        genre_resp = GenreResponse(
-            id = new_genre.genre.id,
-            genre = new_genre.genre.genre
-        )
+    #     genre_resp = GenreResponse(
+    #         id = new_genre.genre.id,
+    #         genre = new_genre.genre.genre
+    #     )
 
-        return genre_resp
+    #     return genre_resp
     
     def create(self, genre: Genre):
         self.session.add(genre)   
@@ -355,7 +355,7 @@ class PublisherRepository:
         self.session.commit()
     
     def check_publisher(self, publisher: PublisherCreate):
-        stmt = select(Publisher).where(Publisher.genre == publisher.publisher) 
+        stmt = select(Publisher).where(Publisher.genre == publisher) 
         result = self.session.exec(stmt).scalars().first()
         if not result:
             new_publisher = Publisher(

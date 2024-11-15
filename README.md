@@ -11,9 +11,13 @@
 - Installation in your virtual environemten (pipenv install ...)
     https://fastapi.tiangolo.com/tutorial/#run-the-code
 
-3. start fastAPI
+3. Database
+- create in docker postgres container
+- create new database 
+
+4. start fastAPI
 - fastapi dev main.py
 
-4. Migrations
+5. Migrations
 erstellen: pipenv run alembic revision --autogenerate -m "Beschreibung der Migration"
 anwenden: pipenv run alembic upgrade head

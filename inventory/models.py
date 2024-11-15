@@ -41,27 +41,27 @@ class AuthorUpdate(BaseModel):
 class Genre(SQLModel, table = True):
 
     id: int | None = Field(default= None, primary_key= True)
-    genre: str
+    name: str
 
     books: list["Book"] = Relationship(back_populates="genre")
 
 
 class GenreResponse(BaseModel):
     id: int
-    genre: str
+    name: str
 
     class Config:
         orm_mode = True
 
 class GenreCreate(BaseModel):
-    genre: str
+    name: str
 
     class Config:
         orm_mode = True
 
 class GenreUpdate(BaseModel):
     id: int
-    genre: str | None = None
+    name: str | None = None
 
 
 
@@ -69,7 +69,7 @@ class GenreUpdate(BaseModel):
 class Publisher(SQLModel, table = True):
 
     id: int | None = Field(default= None, primary_key= True)
-    publisher: str
+    name: str
 
     books: list["Book"] = Relationship(back_populates="publisher")
 
@@ -77,20 +77,20 @@ class Publisher(SQLModel, table = True):
 
 class PublisherResponse(BaseModel):
     id: int
-    publisher: str
+    name: str
 
     class Config:
         orm_mode = True
 
 class PublisherCreate(BaseModel):
-    publisher: str
+    name: str
 
     class Config:
         orm_mode = True
 
 class Update(BaseModel):
     id: int
-    publisher: str | None = None
+    name: str | None = None
 
 
 
@@ -114,16 +114,17 @@ class Book(SQLModel, table = True):
     publisher: Publisher | None = Relationship(back_populates="books")
 
 
+
 class BookResponse(BaseModel):
     isbn: str
     title: str
-    author: AuthorResponse
+    author: Author
     release: date
-    genre: GenreResponse
+    genre: Genre
     description: str
     price: float
     age_recommendation: int
-    publisher: PublisherResponse
+    publisher: Publisher
     stock: int
     
     class Config:
@@ -132,13 +133,13 @@ class BookResponse(BaseModel):
 class BookCreate(BaseModel):
     isbn: str
     title : str
-    author : AuthorCreate
+    author_id : int
     release: date
-    genre : GenreCreate
+    genre_id : int
     description : str
     price : float
     age_recommendation : int
-    publisher : PublisherCreate
+    publisher_id : int
     stock: int
 
     class Config:

@@ -1,13 +1,15 @@
+from fastapi.responses import JSONResponse
 import uvicorn
 from sqlmodel import create_engine, Session, SQLModel
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException, Request
 from typing import Annotated
 from datetime import date
 from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
 from inventory.inventory_service import BookService, AuthorService, GenreService, PublisherService
 from inventory.models import AuthorCreate, Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, GenreCreate, GenreResponse, Publisher, PublisherCreate, PublisherResponse
-#from user.models import User
+from user.models import Role, User
+from inventory.exception import  NotFoundException
 
 
 
@@ -35,11 +37,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+@app.exception_handler(NotFoundException)
+async def book_exception_handler(request: Request, exc: NotFoundException):
+    return JSONResponse(
+        status_code=404,
+        content= {"message": exc.to_string()}
+    )
 
-
-author_rep = AuthorRepository(session)
-genre_rep = GenreRepository(session)
-publisher_rep = PublisherRepository(session)
 book_service = BookService(session)
 author_service = AuthorService(session)
 genre_service = GenreService(session)
@@ -50,12 +54,14 @@ publisher_service = PublisherService(session)
 @app.get("/books", response_model=list[BookResponse])
 async def get_books():
     books = book_service.get_all_books()
-    #print (books)
     return books
 
 @app.get("/book/{isbn}", response_model=BookResponse)
 async def get_book_by_isbn(isbn: str):
-    return book_service.get_book_by_isbn(isbn)
+    book= book_service.get_book_by_isbn(isbn)
+    # if book is None or isbn != book.isbn:
+    #     raise BookException(isbn=isbn)
+    return book
 
 @app.delete("/book/{isbn}", response_model=Book)
 async def delete_book_by_isbn(isbn: str): 
@@ -68,6 +74,11 @@ async def create_book(book: BookCreate):
 @app.put("/book/{isbn}", response_model=Book)
 async def update_book(isbn: str, new_book :Book):
     return book_service.update(isbn, new_book)
+
+#such endpunkt
+@app.post("/search", response_model=list[Book])
+async def search(word: str):
+    return book_service.search_book(word)
 
 
 #Auhtor
@@ -85,7 +96,7 @@ async def delete_author_by_id(id: int):
 
 @app.post("/author", response_model=AuthorResponse)
 async def create_author(author: AuthorCreate):
-    return book_service.create(author)
+    return author_service.create(author)
 
 @app.put("/author/{author_id}", response_model=Author)
 async def update_author(id: int, new_author: Author):
@@ -127,7 +138,7 @@ async def get_books_by_genre(publisher_id: int):
 async def delete_publisher_by_id(id: int): 
     return publisher_service.delete_author_by_id(id) 
 
-@app.post("/author", response_model=PublisherResponse)
+@app.post("/publisher", response_model=PublisherResponse)
 async def create_author(publisher: PublisherCreate):
     return publisher_service.create(publisher)
 
@@ -142,4 +153,4 @@ async def update_author(id: int, new_publisher: Publisher):
 #     return user_rep.get_all()
 
 if __name__=="__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)

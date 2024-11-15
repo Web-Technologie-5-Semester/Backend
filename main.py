@@ -9,7 +9,7 @@ from inventory.repositories import BooksRepository, AuthorRepository, GenreRepos
 from inventory.inventory_service import BookService, AuthorService, GenreService, PublisherService
 from inventory.models import AuthorCreate, Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, GenreCreate, GenreResponse, Publisher, PublisherCreate, PublisherResponse
 from user.models import Role, User
-from inventory.exception import BookException
+from inventory.exception import  NotFoundException
 
 
 
@@ -37,12 +37,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# @app.exception_handler(BookException)
-# async def book_exception_handler(request: Request, exc: BookException):
-#     return JSONResponse(
-#         status_code=404,
-#         content= {"message": f"Book with ISBN {exc.isbn} does not exist"}
-#     )
+@app.exception_handler(NotFoundException)
+async def book_exception_handler(request: Request, exc: NotFoundException):
+    return JSONResponse(
+        status_code=404,
+        content= {"message": exc.to_string()}
+    )
 
 book_service = BookService(session)
 author_service = AuthorService(session)

@@ -23,11 +23,19 @@ class AuthorRepository:
     def get_books_by_id(self, id_author: int):
         stmt = select(Book).where(Book.author_id == id_author)
         result = self.session.execute(stmt).scalars().all()
+        if result == None:
+            raise NotFoundException(id_author, Author.__name__)
         return result
         
-    def delete_by_id(self, id_author: int) -> None:
-        self.session.delete(Author, id_author)
+    def delete_by_id(self, id_author: int) -> Author:
+        stmt = select(Author).where(Author.id == id_author)
+        result = self.session.execute(stmt).scalars().first()
+        if result == None:
+            raise NotFoundException(id_author, Author.__name__)
+        
+        self.session.delete(result) 
         self.session.commit()
+        return result
 
     def check_author(self, author: AuthorCreate):
         stmt = select(Author).where(Author.name == author.name) 
@@ -59,6 +67,8 @@ class AuthorRepository:
     def update(self, id: int, new_author: Author):
         stmt = select(Author).where(Author.id == id)
         result :Author = self.session.execute(stmt).scalars().first()
+        if result == None:
+            raise NotFoundException(id, Author.__name__)
         for key,value in dict(new_author).items():
             if key != "id":
                 if hasattr(result, key):
@@ -100,6 +110,8 @@ class BooksRepository:
     def delete_by_isbn(self, isbn: str):
         stmt = select(Book).where(Book.isbn == isbn) 
         result = self.session.execute(stmt).scalars().first()
+        if result == None:
+            raise NotFoundException(isbn, Book.__name__)
         self.session.delete(result)
         self.session.commit()
         return result   
@@ -149,6 +161,8 @@ class BooksRepository:
     def update(self, isbn: str, new_book: Book):
         stmt = select(Book).options(subqueryload(Book.author)).where(Book.isbn == isbn)
         result :Book = self.session.execute(stmt).scalars().first()
+        if result == None:
+            raise NotFoundException(isbn, Book.__name__)
         for key,value in dict(new_book).items():
             if key != "isbn":
                 if hasattr(result, key):
@@ -174,16 +188,28 @@ class GenreRepository:
         return genres
     
     def get_by_id(self, id_genre: int):
-        return self.session.get(Genre, id_genre)
+        stmt = select(Genre).where(Genre.id == id_genre)
+        result = self.session.execute(stmt).scalars().all()
+        if result == None:
+            raise NotFoundException(id_genre, Genre.__name__)
+        return result
     
     def get_books_by_id(self, id_genre: int):
         stmt = select(Book).where(Book.genre_id == id_genre)
         result = self.session.execute(stmt).scalars().all()
+        if result == None:
+            raise NotFoundException(id_genre, Genre.__name__)
         return result
         
-    def delete_by_id(self, id_genre: int) -> None:
-        self.session.delete(Genre, id_genre)
+    def delete_by_id(self, id_genre: int):
+        stmt = select(Genre).where(Genre.id == id_genre)
+        result = self.session.execute(stmt).scalars().first()
+        if result == None:
+            raise NotFoundException(id_genre, Genre.__name__)
+        
+        self.session.delete(result) 
         self.session.commit()
+        return result
 
     def check_genre(self, genre: GenreCreate):
         stmt = select(Genre).where(Genre.genre == genre) 
@@ -212,6 +238,8 @@ class GenreRepository:
     def update(self, id: int, new_genre: Genre):
         stmt = select(Genre).where(Genre.id == id)
         result :Genre = self.session.execute(stmt).scalars().first()
+        if result == None:
+            raise NotFoundException(id_genre, Genre.__name__)
         for key,value in dict(new_genre).items():
             if key != "id":
                 if hasattr(result, key):
@@ -233,24 +261,32 @@ class PublisherRepository:
         self.session = session
 
     def get_all(self):
-        #with Session(self.engine) as s:
         publishers = self.session.query(Publisher).all()
-            # stmt = select(Book)
-            # result = s.execute(stmt)
-            # books = result.all()
         return publishers
     
     def get_by_id(self, id_publisher: int):
-        return self.session.get(Publisher, id_publisher)
+        stmt = select(Publisher).where(Publisher.id == id_publisher)
+        result = self.session.execute(stmt).scalars().all()
+        if result == None:
+            raise NotFoundException(id_publisher, Publisher.__name__)
+        return result
     
     def get_books_by_id(self, id_publisher: int):
         stmt = select(Book).where(Book.publisher_id == id_publisher)
         result = self.session.execute(stmt).scalars().all()
+        if result == None:
+            raise NotFoundException(id_publisher, Publisher.__name__)
         return result
         
     def delete_by_id(self, id_publisher: int) -> None:
-        self.session.delete(Publisher, id_publisher)
+        stmt = select(Publisher).where(Publisher.id == id_publisher)
+        result = self.session.execute(stmt).scalars().first()
+        if result == None:
+            raise NotFoundException(id_publisher, Publisher.__name__)
+        
+        self.session.delete(result) 
         self.session.commit()
+        return result
     
     def check_publisher(self, publisher: PublisherCreate):
         stmt = select(Publisher).where(Publisher.genre == publisher) 
@@ -295,6 +331,8 @@ class PublisherRepository:
     def update(self, id: int, new_publisher: Publisher):
         stmt = select(Publisher).where(Publisher.id == id)
         result :Publisher = self.session.execute(stmt).scalars().first()
+        if result == None:
+            raise NotFoundException(id_publisher, Publisher.__name__)
         for key,value in dict(new_publisher).items():
             if key != "id":
                 if hasattr(result, key):

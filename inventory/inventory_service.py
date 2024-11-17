@@ -1,6 +1,8 @@
 #wenn neues buch angelegt, muss schauen ob autor schon da, wenn nicht, dann neuen anlegen, wenn ja dann zu autor repository 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select, Engine
+from inventory.exception import NotFoundException
 from inventory.models import AuthorCreate, Book, BookCreate, Author, Genre, Publisher, GenreCreate, PublisherCreate
 from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
 # keine datenbankabfragen 
@@ -59,7 +61,12 @@ class AuthorService():
         return self.author_rep.get_all()
     
     def get_books_by_author(self, id: str):
-        return self.author_rep.get_books_by_id(id)
+        # result :list[Author]| None = None
+        # try:
+        result = self.author_rep.get_books_by_id(id)
+        # except NotFoundException as n:
+        #     raise HTTPException(404, n.to_string())
+        return result
     
     def delete_author_by_id(self, id: int):
         return self.author_rep.delete_by_id(id)

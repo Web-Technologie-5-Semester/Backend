@@ -50,9 +50,9 @@ class AuthorRepository:
             self.session.refresh(new_author)
 
             author_resp = AuthorResponse(
-            id = new_author.author.id,
-            name = new_author.author.name,
-            birthday = new_author.author.birthday
+            id = new_author.id,
+            name = new_author.name,
+            birthday = new_author.birthday
         )
 
             return author_resp
@@ -114,7 +114,7 @@ class BooksRepository:
             raise NotFoundException(isbn, Book.__name__)
         self.session.delete(result)
         self.session.commit()
-        return result   
+        return f" Book {result} is deleted"   
     
     def mapping_book(self, book: Book):
         new_book = Book(
@@ -130,6 +130,7 @@ class BooksRepository:
             stock = book.stock
 
         )
+
         self.session.add(new_book)
         self.session.commit()
         self.session.refresh(new_book)
@@ -145,14 +146,14 @@ class BooksRepository:
             release = new_book.release,
             genre= GenreResponse(
                 id = new_book.genre.id,
-                genre = new_book.genre.genre
+                name = new_book.genre.name
             ),
             description = new_book.description,
             price = new_book.price,
             age_recommendation = new_book.age_recommendation,
             publisher = PublisherResponse(
                 id = new_book.publisher.id,
-                publisher = new_book.publisher.publisher
+                name = new_book.publisher.name
             ),
             stock = new_book.stock
         )
@@ -212,7 +213,7 @@ class GenreRepository:
         return result
 
     def check_genre(self, genre: GenreCreate):
-        stmt = select(Genre).where(Genre.genre == genre) 
+        stmt = select(Genre).where(Genre.name == genre.name) 
         result = self.session.exec(stmt).scalars().first()
         if not result:
             new_genre = Genre(
@@ -289,11 +290,11 @@ class PublisherRepository:
         return result
     
     def check_publisher(self, publisher: PublisherCreate):
-        stmt = select(Publisher).where(Publisher.genre == publisher) 
+        stmt = select(Publisher).where(Publisher.name == publisher.name) 
         result = self.session.exec(stmt).scalars().first()
         if not result:
             new_publisher = Publisher(
-                publisher = publisher.publisher,
+                name = publisher.name,
             )
             self.session.add(new_publisher)
             self.session.commit()

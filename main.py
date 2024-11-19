@@ -146,11 +146,11 @@ async def delete_publisher_by_id(id: int):
     return publisher_service.delete_author_by_id(id) 
 
 @app.post("/publisher", response_model=PublisherResponse)
-async def create_author(publisher: PublisherCreate):
+async def create_publisher(publisher: PublisherCreate):
     return publisher_service.create(publisher)
 
 @app.put("/publisher/{publisher_id}", response_model=Publisher)
-async def update_author(id: int, new_publisher: Publisher):
+async def update_publisher(id: int, new_publisher: Publisher):
     return publisher_service.update(id, new_publisher)
 
 

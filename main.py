@@ -10,6 +10,7 @@ from inventory.inventory_service import BookService, AuthorService, GenreService
 from inventory.models import AuthorCreate, Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, GenreCreate, GenreResponse, Publisher, PublisherCreate, PublisherResponse
 from user.models import Role, User
 from inventory.exception import  ForbiddenException, NotFoundException
+from fastapi.middleware.cors import CORSMiddleware
 
 
 
@@ -36,6 +37,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 @app.exception_handler(NotFoundException)
 async def not_found_handler(request: Request, exc: NotFoundException):
@@ -94,8 +103,8 @@ async def get_authors():
     return author_service.get_all_authors()
 
 @app.get("/author/{author_id}/books", response_model=list[Book])
-async def get_books_by_author(auhtor_id:int):
-    return author_service.get_books_by_author(auhtor_id)
+async def get_books_by_author(author_id:int):
+    return author_service.get_books_by_author(author_id)
 
 @app.delete("/author/{author_id}", response_model=Author)
 async def delete_author_by_id(id: int): 

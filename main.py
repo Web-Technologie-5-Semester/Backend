@@ -64,6 +64,8 @@ book_service = BookService(session)
 author_service = AuthorService(session)
 genre_service = GenreService(session)
 publisher_service = PublisherService(session)
+order_rep = OrderRepository(session)
+order_item_rep = OrderItemRepository(session)
 
 
 #Book
@@ -167,6 +169,60 @@ async def update_publisher(id: int, new_publisher: Publisher):
 # @app.get("/users", response_model=list[User])
 # async def get_all_users():
 #     return user_rep.get_all()
+
+
+
+# ********     Order    *********
+
+# CREATE                                         ------------------>
+@app.post("/order", response_model=OrderResponse)
+async def add_order(order: OrderCreate):
+    return order_rep.create_new_order(order)
+
+# READ
+@app.get("/order/{unique_order_id}", response_model=OrderResponse)
+async def get_order_by_id(unique_order_id: int):
+    return order_rep.get_by_order_id(unique_order_id)
+
+# UPDATE                                                 
+@app.put("/order/{unique_order_id}", response_model=OrderResponse)
+async def update_order(unique_order_id: int, order_update: OrderUpdate):
+    return order_item_rep.update(unique_order_id, order_update)
+
+# DELETE
+@app.delete("/delete/order/{unique_order_id}")
+async def delete_order(unique_order_id: int):
+    return order_rep.delete_by_id(unique_order_id)
+
+
+
+
+# ********     Order_Item    *********
+
+# CREATE           
+@app.post("/order/item", response_model=OrderItemResponse)
+async def add_order_item(order_item: OrderItemCreate):
+    return order_item_rep.create(order_item)
+
+# READ                                                   
+@app.get("/order/item/{unique_order_item_id}", response_model=OrderItemResponse)
+async def get_order_item(unique_order_item_id: int):
+    return order_item_rep.get_by_id(unique_order_item_id)
+
+# UPDATE                                                 
+@app.put("/order/item/{unique_order_item_id}", response_model=OrderItemResponse)
+async def update_order_item(unique_order_item_id: int, order_item_update: OrderItemUpdate):
+    return order_item_rep.update(unique_order_item_id, order_item_update)
+
+# DELETE                                                 
+@app.delete("/order/item/{unique_order_item_id}")
+async def delete_order_item(unique_order_item_id: int):
+    return order_item_rep.delete_by_id(unique_order_item_id)
+
+
+
+
+
 
 if __name__=="__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

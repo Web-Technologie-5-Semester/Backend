@@ -6,7 +6,7 @@ from enum import Enum
 class StatusEnum(str, Enum):
     SELECTED = "Selected"
     PAYED = "Payed"
-    ORDERD = "Orderd"
+    ORDERED = "Ordered"
     
     class Config:
         orm_mode = True

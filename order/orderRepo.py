@@ -13,7 +13,7 @@ class OrderRepository:
         self.session = session
         
     #   CREATE
-    def create_new_order(self, order: OrderCreate):
+    def create_new_order(self, order: OrderCreate) -> OrderResponse:
         new_order = Order(
             
             user_id = order.user_id,
@@ -66,7 +66,7 @@ class OrderRepository:
     
     
     # READ
-    def get_by_order_id(self, unique_order_id: int):
+    def get_by_order_id(self, unique_order_id: int) -> OrderResponse:
         stmt = select(Order).where(Order.unique_order_id == unique_order_id)
         result = self.session.execute(stmt).scalars().first()
         
@@ -125,7 +125,7 @@ class OrderItemRepository:
 
 
         # CREATE
-    def create(self, order_item: OrderItemCreate):
+    def create(self, order_item: OrderItemCreate) -> OrderItemResponse:
         existing_order = self.session.query(Order).filter(Order.unique_order_id == order_item.unique_order_id).first()
 
         if not existing_order:
@@ -154,7 +154,7 @@ class OrderItemRepository:
 
 
     # READ
-    def get_by_id(self, unique_item_id: int):
+    def get_by_id(self, unique_item_id: int) -> OrderItemResponse:
         stmt = select(Order_Item).where(Order_Item.unique_item_id == unique_item_id)
         result = self.session.execute(stmt).scalars().first()
         
@@ -167,7 +167,7 @@ class OrderItemRepository:
 
 
     # UPDATE
-    def update(self, unique_order_item_id: int, order_item_update: OrderItemUpdate):
+    def update(self, unique_order_item_id: int, order_item_update: OrderItemUpdate) -> OrderItemResponse:
         stmt = select(Order_Item).where(Order_Item.unique_order_item_id == unique_order_item_id)
         result = self.session.execute(stmt).scalars().first()
 

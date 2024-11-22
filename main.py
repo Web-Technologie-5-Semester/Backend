@@ -64,8 +64,8 @@ book_service = BookService(session)
 author_service = AuthorService(session)
 genre_service = GenreService(session)
 publisher_service = PublisherService(session)
-order_rep = OrderRepository(session)
-order_item_rep = OrderItemRepository(session)
+order_serv = OrderService(session)
+order_item_serv = OrderItemService(session)
 
 
 #Book
@@ -177,22 +177,22 @@ async def update_publisher(id: int, new_publisher: Publisher):
 # CREATE                                         ------------------>
 @app.post("/order", response_model=OrderResponse)
 async def add_order(order: OrderCreate):
-    return order_rep.create_new_order(order)
+    return order_serv.create_a_new_order(order)
 
 # READ
 @app.get("/order/{unique_order_id}", response_model=OrderResponse)
 async def get_order_by_id(unique_order_id: int):
-    return order_rep.get_by_order_id(unique_order_id)
+    return order_serv.read_by_unique_order_id(unique_order_id)
 
 # UPDATE                                                 
 @app.put("/order/{unique_order_id}", response_model=OrderResponse)
 async def update_order(unique_order_id: int, order_update: OrderUpdate):
-    return order_item_rep.update(unique_order_id, order_update)
+    return order_serv.update_an_order(unique_order_id, order_update)
 
 # DELETE
 @app.delete("/delete/order/{unique_order_id}")
 async def delete_order(unique_order_id: int):
-    return order_rep.delete_by_id(unique_order_id)
+    return order_serv.delete_an_order(unique_order_id)
 
 
 
@@ -202,22 +202,22 @@ async def delete_order(unique_order_id: int):
 # CREATE           
 @app.post("/order/item", response_model=OrderItemResponse)
 async def add_order_item(order_item: OrderItemCreate):
-    return order_item_rep.create(order_item)
+    return order_item_serv.create_an_order_item(order_item)
 
 # READ                                                   
 @app.get("/order/item/{unique_order_item_id}", response_model=OrderItemResponse)
 async def get_order_item(unique_order_item_id: int):
-    return order_item_rep.get_by_id(unique_order_item_id)
+    return order_item_serv.read_by_unique_order_item_id(unique_order_item_id)
 
 # UPDATE                                                 
 @app.put("/order/item/{unique_order_item_id}", response_model=OrderItemResponse)
 async def update_order_item(unique_order_item_id: int, order_item_update: OrderItemUpdate):
-    return order_item_rep.update(unique_order_item_id, order_item_update)
+    return order_item_serv.update_an_order_item(unique_order_item_id, order_item_update)
 
 # DELETE                                                 
 @app.delete("/order/item/{unique_order_item_id}")
 async def delete_order_item(unique_order_item_id: int):
-    return order_item_rep.delete_by_id(unique_order_item_id)
+    return order_item_serv.delete_an_order_item(unique_order_item_id)
 
 
 

@@ -2,17 +2,14 @@ from fastapi.responses import JSONResponse
 import uvicorn
 from sqlmodel import create_engine, Session, SQLModel
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi import FastAPI, Depends, Request
 from typing import Annotated
-from datetime import date
-from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
 from inventory.inventory_service import BookService, AuthorService, GenreService, PublisherService
 from inventory.models import AuthorCreate, Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, GenreCreate, GenreResponse, Publisher, PublisherCreate, PublisherResponse
-from user.models import Role, User
+from order.orderCRUD import OrderCreate, OrderItemCreate, OrderItemResponse, OrderItemUpdate, OrderResponse, OrderUpdate
+from order.orderServices import OrderItemService, OrderService
 from inventory.exception import  ForbiddenException, NotFoundException
 from fastapi.middleware.cors import CORSMiddleware
-
-
 
 sql_url = "postgresql://postgres:admin@localhost:5431/db"
 
@@ -64,6 +61,8 @@ book_service = BookService(session)
 author_service = AuthorService(session)
 genre_service = GenreService(session)
 publisher_service = PublisherService(session)
+order_serv = OrderService(session)
+order_item_serv = OrderItemService(session)
 
 
 #Book
@@ -75,8 +74,6 @@ async def get_books():
 @app.get("/book/{isbn}", response_model=BookResponse)
 async def get_book_by_isbn(isbn: str):
     book= book_service.get_book_by_isbn(isbn)
-    # if book is None or isbn != book.isbn:
-    #     raise BookException(isbn=isbn)
     return book
 
 @app.delete("/book/{isbn}", response_model=Book)
@@ -162,11 +159,45 @@ async def create_publisher(publisher: PublisherCreate):
 async def update_publisher(id: int, new_publisher: Publisher):
     return publisher_service.update(id, new_publisher)
 
+# Order
 
-#############################################################################
-# @app.get("/users", response_model=list[User])
-# async def get_all_users():
-#     return user_rep.get_all()
+@app.post("/order", response_model=OrderResponse)
+async def add_order(order: OrderCreate):
+    return order_serv.create_a_new_order(order)
+
+@app.get("/order/{unique_order_id}", response_model=OrderResponse)
+async def get_order_by_id(unique_order_id: int):
+    return order_serv.read_by_unique_order_id(unique_order_id)
+
+
+@app.put("/order/{unique_order_id}", response_model=OrderResponse)
+async def update_order(unique_order_id: int, order_update: OrderUpdate):
+    return order_serv.update_an_order(unique_order_id, order_update)
+
+
+@app.delete("/delete/order/{unique_order_id}")
+async def delete_order(unique_order_id: int):
+    return order_serv.delete_an_order(unique_order_id)
+
+
+# OrderItem      
+@app.post("/order/item", response_model=OrderItemResponse)
+async def add_order_item(order_item: OrderItemCreate):
+    return order_item_serv.create_an_order_item(order_item)
+                                                  
+@app.get("/order/item/{unique_order_item_id}", response_model=OrderItemResponse)
+async def get_order_item(unique_order_item_id: int):
+    return order_item_serv.read_by_unique_order_item_id(unique_order_item_id)
+                                               
+@app.put("/order/item/{unique_order_item_id}", response_model=OrderItemResponse)
+async def update_order_item(unique_order_item_id: int, order_item_update: OrderItemUpdate):
+    return order_item_serv.update_an_order_item(unique_order_item_id, order_item_update)
+                                              
+@app.delete("/order/item/{unique_order_item_id}")
+async def delete_order_item(unique_order_item_id: int):
+    return order_item_serv.delete_an_order_item(unique_order_item_id)
+
+
 
 if __name__=="__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

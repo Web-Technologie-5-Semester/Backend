@@ -21,7 +21,7 @@ class User(SQLModel, table = True):
     residence: str = Field()
     postal_code: int = Field()
     street: str = Field()
-    password: str = Field()
+    password_hash: str = Field()
     id_role: int = Field(foreign_key="role.id")
 
     role: Role = Relationship(back_populates="users")

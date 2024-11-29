@@ -23,5 +23,11 @@ class User(SQLModel, table = True):
     street: str = Field()
     password_hash: str = Field()
     id_role: int = Field(foreign_key="role.id")
+    sales_tax_id: int = Field(gt=0)
 
     role: Role = Relationship(back_populates="users")
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str

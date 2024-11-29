@@ -3,7 +3,7 @@ from sqlalchemy import select, Engine
 from sqlalchemy.orm import Session, joinedload, selectinload, subqueryload
 import uuid
 
-from inventory.exception import NotFoundException
+from inventory.exception import ExistingException, NotFoundException
 from .models import Author, AuthorResponse, AuthorCreate, Book, BookCreate, Genre, GenreResponse, GenreCreate, Publisher, PublisherCreate, BookResponse, PublisherResponse
 #from .inventory_service import InventoryService
 #nur datenbankabfragen 
@@ -57,7 +57,8 @@ class AuthorRepository:
 
             return author_resp
         else:
-            return result
+            return ExistingException(author.id, Author.__name__)
+        #exception wenn autor schon existiert 
     
     def create(self, author: Author):
         self.session.add(author)   
@@ -229,7 +230,7 @@ class GenreRepository:
         )
             return genre_resp
         else:
-            return result
+            return ExistingException(genre.id, Genre.__name__)
     
     def create(self, genre: Genre):
         self.session.add(genre)   
@@ -306,7 +307,7 @@ class PublisherRepository:
         )
             return publisher_resp
         else:
-            return result
+            return ExistingException(publisher.id, Publisher.__name__)
         
     def mapping_publisher(self, publisher: Publisher):
         new_publisher = Publisher(

@@ -7,9 +7,9 @@ name = "pypi"
 fastapi = {extras = ["standard"] }
 sqlmodel = "*"
 alembic = "*"
-passlib = {extras = ["bcrypt"], version = "*"}
-pyjwt = "*"
 fastapi-jwt-auth = "*"
+fastapi-users = {extras = ["sqlalchemy"], version = "*"}
+pyjwt = "*"
 
 [dev-packages]
 

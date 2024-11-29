@@ -1,24 +1,21 @@
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import uvicorn
-import jwt
 from passlib.context import CryptContext
 from sqlmodel import create_engine, Session, SQLModel
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi_jwt_auth import AuthJWT
 from typing import Annotated
-from datetime import date, timedelta
-from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
+from datetime import timedelta
 from inventory.inventory_service import BookService, AuthorService, GenreService, PublisherService
 from inventory.models import AuthorCreate, Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, GenreCreate, GenreResponse, Publisher, PublisherCreate, PublisherResponse
 from order.orderCRUD import OrderCreate, OrderItemCreate, OrderItemResponse, OrderItemUpdate, OrderResponse, OrderUpdate
 from order.orderServices import OrderItemService, OrderService
-from inventory.exception import  ForbiddenException, NotFoundException
+from inventory.exception import  ExistingException, ForbiddenException, NotFoundException
 from fastapi.middleware.cors import CORSMiddleware
 
-from user.service import UserService
+# from user.service import UserService
 
 
 
@@ -49,7 +46,9 @@ book_service = BookService(session)
 author_service = AuthorService(session)
 genre_service = GenreService(session)
 publisher_service = PublisherService(session)
-user_service = UserService(session)
+order_serv = OrderService(session)
+order_item_serv = OrderItemService(session)
+# user_service = UserService(session)
 
 
 
@@ -64,40 +63,36 @@ app.add_middleware(
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-SECRET_KEY ="39678b8be1e7114ddae8d8f33f926f3cb233ebc6b735f62580f9840c6809b831"
-access_tkn_exp_minutes = 30
+#SECRET_KEY ="39678b8be1e7114ddae8d8f33f926f3cb233ebc6b735f62580f9840c6809b831"
+#access_tkn_exp_minutes = 30‚
 
 
 
 class Settings(BaseModel):
     authjwt_secret_key: str = "your_secret_key"
 
-@AuthJWT.load_config
-def get_config():
-    return Settings()
-
 
 
 #Log in
-@app.post("/login")
-async def login_access_token(data: OAuth2PasswordRequestForm = Depends(), authorize: AuthJWT = Depends()):
-    user = user_service.authenticate(data.username, data.password)
-    if not user:
-        raise HTTPException(
-            status_code=400,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    token_expires = timedelta(minutes= access_tkn_exp_minutes)
-    access_token= user_service.create_access_token(
-        data={"sub": user.email}, expires=token_expires
-    )
-    return {"access_token": access_token, "type": "bearer"}
+# @app.post("/login")
+# async def login_access_token(data: OAuth2PasswordRequestForm = Depends(), authorize: AuthJWT = Depends()):
+#     user = user_service.authenticate(data.username, data.password)
+#     if not user:
+#         raise HTTPException(
+#             status_code=400,
+#             detail="Incorrect username or password",
+#             headers={"WWW-Authenticate": "Bearer"},
+#         )
+#     token_expires = timedelta(minutes= access_tkn_exp_minutes)
+#     access_token= user_service.create_access_token(
+#         data={"sub": user.email}, expires=token_expires
+#     )
+#     return {"access_token": access_token, "type": "bearer"}
 
-@app.post("/register")
-async def register_user(email: str, password: str):
-    new_user = user_service.create_user(email, password)
-    return {"email": new_user.email, "message": "User created successfully"}   
+# @app.post("/register")
+# async def register_user(email: str, password: str):
+#     new_user = user_service.create_user(email, password)
+#     return {"email": new_user.email, "message": "User created successfully"}   
 
 
 #Exception###############################################################
@@ -115,9 +110,12 @@ async def forbidden_handler(request: Request, exc: ForbiddenException):
         content= {"message": exc.to_string()}
     )
 
-order_serv = OrderService(session)
-order_item_serv = OrderItemService(session)
-
+@app.exception_handler(ExistingException)
+async def forbidden_handler(request: Request, exc: ExistingException):
+    return JSONResponse(
+        status_code= 409,
+        content= {"message": exc.to_string()}
+    )
 ####################################################################
 
 #Book
@@ -204,7 +202,7 @@ async def get_books_by_publisher(publisher_id: int):
 
 @app.delete("/publisher/{publisher_id}", response_model=Publisher)
 async def delete_publisher_by_id(id: int): 
-    return publisher_service.delete_author_by_id(id) 
+    return publisher_service.delete_publisher_by_id(id) 
 
 @app.post("/publisher", response_model=PublisherResponse)
 async def create_publisher(publisher: PublisherCreate):

@@ -12,9 +12,9 @@ class StatusEnum(str, Enum):
         orm_mode = True
 
 
-# ***********     Order    ***************
 
-# CREATE
+
+
 class OrderCreate(BaseModel):
     user_id: int
 
@@ -26,7 +26,7 @@ class OrderCreate(BaseModel):
     class Config:
         orm_mode = True
         
-# READ
+
 class OrderResponse(BaseModel):
     unique_order_id: int
     user_id: int
@@ -41,7 +41,7 @@ class OrderResponse(BaseModel):
     class Config:
         orm_mode = True
         
-# UPDATE
+
 class OrderUpdate(BaseModel):
     shipping_address: str  
     billing_address: str
@@ -51,10 +51,8 @@ class OrderUpdate(BaseModel):
         orm_mode = True
       
 
-# ***********     OrderItems    ***************
 
 
-# CREATE
 class OrderItemCreate(BaseModel):
     
     unique_order_id: int
@@ -65,7 +63,7 @@ class OrderItemCreate(BaseModel):
     class Config:
         orm_mode = True
 
-# READ
+
 class OrderItemResponse(BaseModel):
 
     unique_order_id: int
@@ -77,7 +75,7 @@ class OrderItemResponse(BaseModel):
         orm_mode = True
 
 
-# UPDATE
+
 class OrderItemUpdate(BaseModel):
     quantity: int | None = None
     price: float | None = None

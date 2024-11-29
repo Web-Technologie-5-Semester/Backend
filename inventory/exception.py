@@ -12,3 +12,9 @@ class ForbiddenException(Exception):
 
     def to_string(self) -> str:
         return "This is none of your business"
+    
+
+class ExistingException(Exception):
+
+    def to_string(self) -> str:
+        return f"'{self.type}' with id '{self.id}' already exists"

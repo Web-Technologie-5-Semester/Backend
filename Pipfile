@@ -10,6 +10,7 @@ alembic = "*"
 fastapi-jwt-auth = "*"
 fastapi-users = {extras = ["sqlalchemy"], version = "*"}
 pyjwt = "*"
+jose = "*"
 
 [dev-packages]
 

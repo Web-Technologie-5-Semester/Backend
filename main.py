@@ -4,7 +4,7 @@ import uvicorn
 from passlib.context import CryptContext
 from sqlmodel import create_engine, Session, SQLModel
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends, Request
+from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Annotated
 from datetime import timedelta
@@ -14,8 +14,11 @@ from order.orderCRUD import OrderCreate, OrderItemCreate, OrderItemResponse, Ord
 from order.orderServices import OrderItemService, OrderService
 from inventory.exception import  ExistingException, ForbiddenException, NotFoundException
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.types import ASGIApp
+from starlette.middleware.base import BaseHTTPMiddleware
+from user.models import Token
+from user.service import UserService
 
-# from user.service import UserService
 
 
 
@@ -48,7 +51,7 @@ genre_service = GenreService(session)
 publisher_service = PublisherService(session)
 order_serv = OrderService(session)
 order_item_serv = OrderItemService(session)
-# user_service = UserService(session)
+user_service = UserService(session)
 
 
 
@@ -60,39 +63,60 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+class AuthMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app: ASGIApp, token_validator: Callable):
+        super().__init__(app)
+        self.token_validator = token_validator
+
+    async def dispatch(self, request: Request, call_next):
+        if request.url.path == "/token" or request.url.path.startswith("/docs") or request.url.path.startswith("/openapi.json"):
+            return await call_next(request)
+
+        # Token aus den Headers extrahieren
+        authorization: str = request.headers.get("Authorization")
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authorization header missing or invalid",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        token = authorization.split(" ")[1]
+        try:
+            payload = self.token_validator(token)
+            request.state.user = payload  # Benutzerinformationen verfügbar machen
+        except JWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        return await call_next(request)
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-#SECRET_KEY ="39678b8be1e7114ddae8d8f33f926f3cb233ebc6b735f62580f9840c6809b831"
-#access_tkn_exp_minutes = 30‚
-
-
-
-class Settings(BaseModel):
-    authjwt_secret_key: str = "your_secret_key"
-
 
 
 #Log in
-# @app.post("/login")
-# async def login_access_token(data: OAuth2PasswordRequestForm = Depends(), authorize: AuthJWT = Depends()):
-#     user = user_service.authenticate(data.username, data.password)
-#     if not user:
-#         raise HTTPException(
-#             status_code=400,
-#             detail="Incorrect username or password",
-#             headers={"WWW-Authenticate": "Bearer"},
-#         )
-#     token_expires = timedelta(minutes= access_tkn_exp_minutes)
-#     access_token= user_service.create_access_token(
-#         data={"sub": user.email}, expires=token_expires
-#     )
-#     return {"access_token": access_token, "type": "bearer"}
+@app.post("/token")
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+) -> Token:
+    user = user_service.authenticate_user(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=user_service.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = user_service.create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return Token(access_token=access_token, token_type="bearer")
 
-# @app.post("/register")
-# async def register_user(email: str, password: str):
-#     new_user = user_service.create_user(email, password)
-#     return {"email": new_user.email, "message": "User created successfully"}   
 
 
 #Exception###############################################################

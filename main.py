@@ -13,9 +13,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.types import ASGIApp
 from starlette.middleware.base import BaseHTTPMiddleware
 from db import engine
-
-
-from routers.inventory import router
+from routers.inventory import inv_router
+from routers.order import order_router
 
 
 @asynccontextmanager
@@ -30,7 +29,8 @@ app = FastAPI(lifespan=lifespan)
 # order_item_serv = OrderItemService(session)
 
 
-app.include_router(router)
+app.include_router(inv_router)
+app.include_router(order_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -123,41 +123,7 @@ async def forbidden_handler(request: Request, exc: ExistingException):
 
 # Order
 
-@app.post("/order", response_model=OrderResponse)
-async def add_order(order: OrderCreate):
-    return order_serv.create_a_new_order(order)
 
-@app.get("/order/{unique_order_id}", response_model=OrderResponse)
-async def get_order_by_id(unique_order_id: int):
-    return order_serv.read_by_unique_order_id(unique_order_id)
-
-
-@app.put("/order/{unique_order_id}", response_model=OrderResponse)
-async def update_order(unique_order_id: int, order_update: OrderUpdate):
-    return order_serv.update_an_order(unique_order_id, order_update)
-
-
-@app.delete("/delete/order/{unique_order_id}")
-async def delete_order(unique_order_id: int):
-    return order_serv.delete_an_order(unique_order_id)
-
-
-# OrderItem      
-@app.post("/order/item", response_model=OrderItemResponse)
-async def add_order_item(order_item: OrderItemCreate):
-    return order_item_serv.create_an_order_item(order_item)
-                                                  
-@app.get("/order/item/{unique_order_item_id}", response_model=OrderItemResponse)
-async def get_order_item(unique_order_item_id: int):
-    return order_item_serv.read_by_unique_order_item_id(unique_order_item_id)
-                                               
-@app.put("/order/item/{unique_order_item_id}", response_model=OrderItemResponse)
-async def update_order_item(unique_order_item_id: int, order_item_update: OrderItemUpdate):
-    return order_item_serv.update_an_order_item(unique_order_item_id, order_item_update)
-                                              
-@app.delete("/order/item/{unique_order_item_id}")
-async def delete_order_item(unique_order_item_id: int):
-    return order_item_serv.delete_an_order_item(unique_order_item_id)
 
 
 

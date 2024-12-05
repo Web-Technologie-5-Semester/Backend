@@ -1,8 +1,10 @@
+from fastapi import Depends
 from sqlmodel import SQLModel
 from sqlalchemy import select, Engine
 from sqlalchemy.orm import Session, joinedload, selectinload, subqueryload
 import uuid
 
+from db import get_session
 from inventory.exception import ExistingException, NotFoundException
 from .models import Author, AuthorResponse, AuthorCreate, Book, BookCreate, Genre, GenreResponse, GenreCreate, Publisher, PublisherCreate, BookResponse, PublisherResponse
 #from .inventory_service import InventoryService

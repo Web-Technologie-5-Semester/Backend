@@ -6,34 +6,16 @@ from sqlmodel import create_engine, Session, SQLModel
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from typing import Annotated
-from datetime import timedelta
-from inventory.inventory_service import BookService, AuthorService, GenreService, PublisherService
-from inventory.models import AuthorCreate, Book, BookResponse, BookCreate, Author, AuthorResponse, Genre, GenreCreate, GenreResponse, Publisher, PublisherCreate, PublisherResponse
 from order.orderCRUD import OrderCreate, OrderItemCreate, OrderItemResponse, OrderItemUpdate, OrderResponse, OrderUpdate
 from order.orderServices import OrderItemService, OrderService
 from inventory.exception import  ExistingException, ForbiddenException, NotFoundException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.types import ASGIApp
 from starlette.middleware.base import BaseHTTPMiddleware
-from user.models import Token
-from user.service import UserService
+from db import engine
 
 
-
-
-sql_url = "postgresql://postgres:admin@localhost:5431/db"
-
-connect_args = {"check_same_thread": False}
-engine = create_engine(sql_url, echo=True)
-session = Session(engine)
-
-
-def get_session():
-    with Session(engine) as session:
-        yield session
-
-SessionDep = Annotated[Session, Depends(get_session)]
+from routers.inventory import router
 
 
 @asynccontextmanager
@@ -44,16 +26,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-
-book_service = BookService(session)
-author_service = AuthorService(session)
-genre_service = GenreService(session)
-publisher_service = PublisherService(session)
-order_serv = OrderService(session)
-order_item_serv = OrderItemService(session)
-user_service = UserService(session)
+# order_serv = OrderService(session)
+# order_item_serv = OrderItemService(session)
 
 
+app.include_router(router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -63,59 +40,59 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-class AuthMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app: ASGIApp, token_validator: Callable):
-        super().__init__(app)
-        self.token_validator = token_validator
+# class AuthMiddleware(BaseHTTPMiddleware):
+#     def __init__(self, app: ASGIApp, token_validator: Callable):
+#         super().__init__(app)
+#         self.token_validator = token_validator
 
-    async def dispatch(self, request: Request, call_next):
-        if request.url.path == "/token" or request.url.path.startswith("/docs") or request.url.path.startswith("/openapi.json"):
-            return await call_next(request)
+#     async def dispatch(self, request: Request, call_next):
+#         if request.url.path == "/token" or request.url.path.startswith("/docs") or request.url.path.startswith("/openapi.json"):
+#             return await call_next(request)
 
-        # Token aus den Headers extrahieren
-        authorization: str = request.headers.get("Authorization")
-        if not authorization or not authorization.startswith("Bearer "):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authorization header missing or invalid",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+#         # Token aus den Headers extrahieren
+#         authorization: str = request.headers.get("Authorization")
+#         if not authorization or not authorization.startswith("Bearer "):
+#             raise HTTPException(
+#                 status_code=status.HTTP_401_UNAUTHORIZED,
+#                 detail="Authorization header missing or invalid",
+#                 headers={"WWW-Authenticate": "Bearer"},
+#             )
 
-        token = authorization.split(" ")[1]
-        try:
-            payload = self.token_validator(token)
-            request.state.user = payload  # Benutzerinformationen verfügbar machen
-        except JWTError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or expired token",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+#         token = authorization.split(" ")[1]
+#         try:
+#             payload = self.token_validator(token)
+#             request.state.user = payload  # Benutzerinformationen verfügbar machen
+#         except JWTError:
+#             raise HTTPException(
+#                 status_code=status.HTTP_401_UNAUTHORIZED,
+#                 detail="Invalid or expired token",
+#                 headers={"WWW-Authenticate": "Bearer"},
+#             )
 
-        return await call_next(request)
-
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+#         return await call_next(request)
 
 
-#Log in
-@app.post("/token")
-async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-) -> Token:
-    user = user_service.authenticate_user(form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    access_token_expires = timedelta(minutes=user_service.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = user_service.create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
-    )
-    return Token(access_token=access_token, token_type="bearer")
+# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+# #Log in
+# @app.post("/token")
+# async def login_for_access_token(
+#     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+# ) -> Token:
+#     user = user_service.authenticate_user(form_data.username, form_data.password)
+#     if not user:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Incorrect username or password",
+#             headers={"WWW-Authenticate": "Bearer"},
+#         )
+#     access_token_expires = timedelta(minutes=user_service.ACCESS_TOKEN_EXPIRE_MINUTES)
+#     access_token = user_service.create_access_token(
+#         data={"sub": user.username}, expires_delta=access_token_expires
+#     )
+#     return Token(access_token=access_token, token_type="bearer")
 
 
 
@@ -142,99 +119,7 @@ async def forbidden_handler(request: Request, exc: ExistingException):
     )
 ####################################################################
 
-#Book
-@app.get("/books", response_model=list[BookResponse])
-async def get_books():
-    books = book_service.get_all_books()
-    return books
 
-@app.get("/book/{isbn}", response_model=BookResponse)
-async def get_book_by_isbn(isbn: str):
-    book= book_service.get_book_by_isbn(isbn)
-    return book
-
-@app.delete("/book/{isbn}", response_model=Book)
-async def delete_book_by_isbn(isbn: str): 
-    return book_service.delete_book_by_isbn(isbn) 
-
-@app.post("/book", response_model=BookResponse)
-async def create_book(book: BookCreate):
-    return book_service.create(book)
-
-@app.put("/book/{isbn}", response_model=Book)
-async def update_book(isbn: str, new_book :Book):
-    return book_service.update(isbn, new_book)
-
-#such endpunkt
-@app.post("/search", response_model=list[Book])
-async def search(word: str):
-    return book_service.search_book(word)
-
-
-#Auhtor
-@app.get("/author", response_model=list[Author])
-async def get_authors():
-    return author_service.get_all_authors()
-
-@app.get("/author/{author_id}/books", response_model=list[Book])
-async def get_books_by_author(author_id:int):
-    return author_service.get_books_by_author(author_id)
-
-@app.delete("/author/{author_id}", response_model=Author)
-async def delete_author_by_id(id: int): 
-    return author_service.delete_author_by_id(id) 
-
-@app.post("/author", response_model=AuthorResponse)
-async def create_author(author: AuthorCreate):
-    return author_service.create(author)
-
-@app.put("/author/{author_id}", response_model=Author)
-async def update_author(id: int, new_author: Author):
-    return author_service.update(id, new_author)
-
-
-#Genre
-@app.get("/genre", response_model=list[Genre])
-async def get_genres():
-    return genre_service.get_all_genres()
-
-@app.get("/genre/{genre_id}/books", response_model= list[Book])
-async def get_books_by_genre(genre_id: int):
-    return genre_service.get_books_by_genre(genre_id)
-
-@app.delete("/genre/{genre_id}", response_model=Genre)
-async def delete_genre_by_id(id: int): 
-    return genre_service.delete_genre_by_id(id) 
-
-@app.post("/genre", response_model=GenreResponse)
-async def create_genre(genre: GenreCreate):
-    return genre_service.create(genre)
-
-@app.put("/genre/{genre_id}", response_model=Genre)
-async def update_genre(id: int, new_genre: Genre):
-    return genre_service.update(id, new_genre)
-
-
-#Publisher
-@app.get("/publisher", response_model=list[Publisher])
-async def get_publishers():
-    return publisher_service.get_all_publishers()
-
-@app.get("/publisher/{publisher_id}/books", response_model= list[Book])
-async def get_books_by_publisher(publisher_id: int):
-    return publisher_service.get_books_by_publisher(publisher_id)
-
-@app.delete("/publisher/{publisher_id}", response_model=Publisher)
-async def delete_publisher_by_id(id: int): 
-    return publisher_service.delete_publisher_by_id(id) 
-
-@app.post("/publisher", response_model=PublisherResponse)
-async def create_publisher(publisher: PublisherCreate):
-    return publisher_service.create(publisher)
-
-@app.put("/publisher/{publisher_id}", response_model=Publisher)
-async def update_publisher(id: int, new_publisher: Publisher):
-    return publisher_service.update(id, new_publisher)
 
 # Order
 

@@ -8,6 +8,7 @@ from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from order.orderCRUD import OrderCreate, OrderItemCreate, OrderItemResponse, OrderItemUpdate, OrderResponse, OrderUpdate
 from order.orderServices import OrderItemService, OrderService
+from user.models import User
 from inventory.exception import  ExistingException, ForbiddenException, NotFoundException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.types import ASGIApp

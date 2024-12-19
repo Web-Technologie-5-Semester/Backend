@@ -40,11 +40,6 @@ class User(SQLModel, table = True):
     role: Role = Relationship(back_populates="users")
     seller: Seller = Relationship(back_populates="user")
 
-
-
-    
-
-
 class Token(BaseModel):
     access_token: str
     token_type: str

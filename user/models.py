@@ -1,45 +1,48 @@
 from pydantic import BaseModel
+from sqlalchemy import Column, String
 from sqlmodel import Field, Session, SQLModel, create_engine, select, Relationship
 
 
-#Role
-class Role(SQLModel, table = True):
+class Role(SQLModel, table= True):
 
-    id: int | None = Field(default=None, primary_key= True)
+    id: int | None = Field(default= None, primary_key= True)
     role: str = Field()
-
     users: list["User"] = Relationship(back_populates="role")
 
+
+class Seller(SQLModel, table=True):
+
+    user_id: int = Field(primary_key=True, foreign_key="user.id")
+    bank: str = Field()
+    BIC: int = Field()
+    banking_name: str = Field()
+    IBAN: str = Field()
+    sales_tax_id: int = Field()
+
+    user: list["User"] = Relationship(back_populates="seller")
 
 #User
 class User(SQLModel, table = True):
 
     id: int | None = Field(default= None, primary_key= True)
-    forename: str = Field()
+    first_name: str = Field()
     name: str = Field()
     email: str = Field()
-    residence: str = Field()
-    postal_code: int = Field()
     street: str = Field()
+    house_number: int = Field()
+    city: str = Field()
+    district: str = Field()
+    postal_code: int = Field()
+    birthday: str = Field()
     password_hash: str = Field()
-    id_role: int = Field(foreign_key="role.id")
+    role_id: int = Field(foreign_key="role.id")
 
     role: Role = Relationship(back_populates="users")
+    seller: Seller = Relationship(back_populates="user")
 
 
-class Seller(SQLModel, table= True):
 
-    id: int | None = Field(default = None, primary_key= True)
-    forename: str = Field()
-    name: str = Field()
-    email: str = Field()
-    residence: str = Field()
-    postal_code: int = Field()
-    street: str = Field()
-    password_hash: str = Field()
-    id_role: int = Field(foreign_key="role.id")
-    IBAN: str = Field()
-    sales_tax_id: int = Field(gt=0)
+    
 
 
 class Token(BaseModel):

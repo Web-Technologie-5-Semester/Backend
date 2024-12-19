@@ -1,13 +1,15 @@
+from typing import Annotated
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import uvicorn
 from passlib.context import CryptContext
 from sqlmodel import create_engine, Session, SQLModel
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from order.orderCRUD import OrderCreate, OrderItemCreate, OrderItemResponse, OrderItemUpdate, OrderResponse, OrderUpdate
 from order.orderServices import OrderItemService, OrderService
+from user.models import User
 from inventory.exception import  ExistingException, ForbiddenException, NotFoundException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.types import ASGIApp
@@ -15,6 +17,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from db import engine
 from routers.inventory import inv_router
 from routers.order import order_router
+from routers.user import user_router
 
 
 @asynccontextmanager
@@ -25,12 +28,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# order_serv = OrderService(session)
-# order_item_serv = OrderItemService(session)
+
 
 
 app.include_router(inv_router)
 app.include_router(order_router)
+app.include_router(user_router)
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -39,6 +43,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+
 
 # class AuthMiddleware(BaseHTTPMiddleware):
 #     def __init__(self, app: ASGIApp, token_validator: Callable):

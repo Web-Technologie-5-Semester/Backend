@@ -24,20 +24,20 @@ class UserService():
         self.user = User()
     
 
-    def get_users(self, email: str):
-        users :User = self.user_rep.get_users(email)
+    def get_user(self, email: str):
+        users :User = self.user_rep.get_user(email)
         if not users:
             return None
         return users
     
     def fake_decode_token(self, token):
-        user = self.get_user(token)
+        user = self.get_users(token)
         return user
     
     def fake_hash_pwd(self, password: str):
         return "fakehashed" + password
     
-    async def get_current_user(self, token: Annotated[str, Depends(oauth2_scheme)]):
+    def get_current_user(self, token: Annotated[str, Depends(oauth2_scheme)]):
         user = self.fake_decode_token(token)
         if not user:
             raise HTTPException(
@@ -46,13 +46,8 @@ class UserService():
                 headers={"WWW-Authenticate": "Bearer"},
             )
         return user
-
-        
-    # def get_pwd(self, email: str):
-    #     user_pwd = self.user_rep.get_pwd(email)
-    #     return user_pwd
     
-    async def get_current_active_user(self, current_user: Annotated[User, Depends(get_current_user)]):
+    def get_current_active_user(self, current_user: Annotated[User, Depends(get_current_user)]):
         if current_user.disabled:
             raise HTTPException(status_code=400, detail="Inactive user")
         return current_user

@@ -27,10 +27,10 @@ async def read_users_me(
 
 @user_router.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    user_dict: User = user_serv.get_users(form_data.username)
+    user_dict: User = user_serv.get_user(form_data.username)
     if not user_dict:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
-    pwd = user_dict.password_hash
+    pwd: str = user_dict.password_hash
     if not pwd:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
-    return {"access_token": user_dict.username, "token_type": "bearer"}
+    return {"access_token": user_dict.email, "token_type": "bearer"}

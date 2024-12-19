@@ -12,9 +12,9 @@ class UserRepository:
         users = self.session.exec(User).all()
         return users
     
-    def get_users(self, email: str) -> list[User]:
+    def get_user(self, email: str) -> list[User]:
         stmt = select(User).where(User.email == email)
-        result :list[User] = self.session.exec(stmt).scalars().all()
+        result :User = self.session.exec(stmt).scalars().first()
         return result
 
     def create_user(self, email: str, password_hash: str):

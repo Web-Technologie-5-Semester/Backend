@@ -9,8 +9,8 @@ sqlmodel = "*"
 alembic = "*"
 fastapi-jwt-auth = "*"
 fastapi-users = {extras = ["sqlalchemy"], version = "*"}
-pyjwt = "*"
 jose = "*"
+pyjwt = "*"
 
 [dev-packages]
 

@@ -4,6 +4,8 @@ from .models import User
 
 
 class UserRepository:
+    engine :Engine = None
+    session :Session = None
 
     def __init__(self, session: Session):
         self.session = session
@@ -12,9 +14,9 @@ class UserRepository:
         users = self.session.exec(User).all()
         return users
     
-    def get_user(self, email: str) -> list[User]:
+    def get_user(self, email: str) -> User:
         stmt = select(User).where(User.email == email)
-        result :User = self.session.exec(stmt).scalars().first()
+        result: User= self.session.exec(stmt).scalars().first()
         return result
 
     def create_user(self, email: str, password_hash: str):

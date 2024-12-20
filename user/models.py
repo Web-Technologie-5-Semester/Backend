@@ -36,6 +36,7 @@ class User(SQLModel, table = True):
     birthday: str = Field()
     password_hash: str = Field()
     role_id: int = Field(foreign_key="role.id")
+    disabled: bool = Field(default= False)
 
     role: Role = Relationship(back_populates="users")
     seller: Seller = Relationship(back_populates="user")

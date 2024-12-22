@@ -74,13 +74,13 @@ class UserService():
                     detail="Token ist abgelaufen",
                     headers={"WWW-Authenticate": "Bearer"},
                 )
-            #token_data = TokenData(username=username)  
-        except InvalidTokenError:
+            user = UserRepository(session).get_user(email= username)
+            if user is None:
+                raise credentials_exception
+            return user
+        except:
             raise credentials_exception
-        user = UserRepository(session).get_user(email=token.username)
-        if user is None:
-            raise credentials_exception
-        return user
+        
 
     
     def get_current_active_user(self, current_user: Annotated[User, Depends(get_current_user)]):

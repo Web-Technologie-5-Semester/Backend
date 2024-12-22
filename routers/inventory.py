@@ -3,6 +3,9 @@ from sqlmodel import Session
 from inventory.models import Author, AuthorCreate, AuthorResponse, Book, BookCreate, BookResponse, Genre, GenreCreate, GenreResponse, Publisher, PublisherCreate, PublisherResponse
 from inventory.inventory_service import BookService, AuthorService, GenreService, PublisherService
 from db import get_session
+from user.service import UserService
+from user.models import User
+from typing import Annotated
 
 inv_router = APIRouter()
 
@@ -19,7 +22,7 @@ async def get_book_by_isbn(isbn: str, session: Session = Depends(get_session)):
     return book
 
 @inv_router.delete("/book/{isbn}", response_model=Book)
-async def delete_book_by_isbn(isbn: str, session: Session = Depends(get_session)): 
+async def delete_book_by_isbn(isbn: str, current_user: Annotated[User, Depends(UserService.get_current_active_user)], session: Session = Depends(get_session)): 
     return BookService(session).delete_book_by_isbn(isbn)
 
 @inv_router.post("/book", response_model=BookResponse)

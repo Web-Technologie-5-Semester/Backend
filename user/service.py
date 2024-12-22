@@ -97,16 +97,14 @@ class UserService():
             return False
         return user
     
-    def create_access_token(self, data: dict, expires_delta: timedelta | None = None):
-        to_encode = data.copy()
-        if expires_delta:
-            expire = datetime.now(timezone.utc) + expires_delta
-        else:
-            expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-        to_encode.update({"exp": expire})
-        encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-        return encoded_jwt
+    # def create_access_token(self, data: dict, expires_delta: timedelta | None = None):
+    #     to_encode = data.copy()
+    #     if expires_delta:
+    #         expire = datetime.now(timezone.utc) + expires_delta
+    #     else:
+    #         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    #     to_encode.update({"exp": expire})
+    #     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    #     return encoded_jwt
 
-#TODO: token sachen in extra file
-#TODO: alle endpunkte sperren, bis auf neuen nutzer anlegen und gets öffentlich 
-#TODO: Bild von Buch abspeichern
+#TODO: alle endpunkte sperren, bis auf neuen nutzer anlegen und gets öffentlich

@@ -74,7 +74,6 @@ class AuthorService():
     
     def create(self, author: AuthorCreate):
         new_author = self.author_rep.check_author(author)
-        #new_author = self.author_rep.mapping_author(current_author)
         return new_author
     
     def update(self, id: int, new_author: Author):

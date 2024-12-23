@@ -132,3 +132,4 @@ class PublisherService():
         publisher = self.publisher_rep.update(id, new_publisher)
         return publisher
     
+#TODO: Checken, ob jemand die richtige rolle zum bearbeiten hat

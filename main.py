@@ -45,63 +45,6 @@ app.add_middleware(
 )
 
 
-
-# class AuthMiddleware(BaseHTTPMiddleware):
-#     def __init__(self, app: ASGIApp, token_validator: Callable):
-#         super().__init__(app)
-#         self.token_validator = token_validator
-
-#     async def dispatch(self, request: Request, call_next):
-#         if request.url.path == "/token" or request.url.path.startswith("/docs") or request.url.path.startswith("/openapi.json"):
-#             return await call_next(request)
-
-#         # Token aus den Headers extrahieren
-#         authorization: str = request.headers.get("Authorization")
-#         if not authorization or not authorization.startswith("Bearer "):
-#             raise HTTPException(
-#                 status_code=status.HTTP_401_UNAUTHORIZED,
-#                 detail="Authorization header missing or invalid",
-#                 headers={"WWW-Authenticate": "Bearer"},
-#             )
-
-#         token = authorization.split(" ")[1]
-#         try:
-#             payload = self.token_validator(token)
-#             request.state.user = payload  # Benutzerinformationen verfügbar machen
-#         except JWTError:
-#             raise HTTPException(
-#                 status_code=status.HTTP_401_UNAUTHORIZED,
-#                 detail="Invalid or expired token",
-#                 headers={"WWW-Authenticate": "Bearer"},
-#             )
-
-#         return await call_next(request)
-
-
-# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
-# #Log in
-# @app.post("/token")
-# async def login_for_access_token(
-#     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-# ) -> Token:
-#     user = user_service.authenticate_user(form_data.username, form_data.password)
-#     if not user:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail="Incorrect username or password",
-#             headers={"WWW-Authenticate": "Bearer"},
-#         )
-#     access_token_expires = timedelta(minutes=user_service.ACCESS_TOKEN_EXPIRE_MINUTES)
-#     access_token = user_service.create_access_token(
-#         data={"sub": user.username}, expires_delta=access_token_expires
-#     )
-#     return Token(access_token=access_token, token_type="bearer")
-
-
-
 #Exception###############################################################
 @app.exception_handler(NotFoundException)
 async def not_found_handler(request: Request, exc: NotFoundException):

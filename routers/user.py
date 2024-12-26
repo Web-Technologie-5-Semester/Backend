@@ -8,6 +8,7 @@ from user.service import UserService
 from db import session
 from user.token import TokenData
 from datetime import timedelta
+from user.authentication import get_current_active_user
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -21,7 +22,7 @@ async def create_user(user: UserCreate, session: Session = Depends(get_session))
     return UserService(session).create_user(user)
 
 @user_router.get("/users/me")
-async def read_users_me(current_user: Annotated[User, Depends(UserService.get_current_active_user)]):
+async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]):
     return current_user
 
 

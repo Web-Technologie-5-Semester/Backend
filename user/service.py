@@ -9,7 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
 from user.models import User, Token, TokenData
 from db import session
-from passlib.context import CryptContext
+
 
 
 SECRET_KEY = "97185efe61e4cdb4a5052f0a4fef3de03c3d946669d40a43cebcd6906d26f8a5"
@@ -17,12 +17,10 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXP_MIN = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
 
 class UserService():
     session :Session = None
+    _self = None
 
     def __init__(self, session):
         self.session = session
@@ -39,19 +37,10 @@ class UserService():
     def create_user(self, user: User):
         new_user = self.user_rep.check_user(user)
         return new_user
-    
-    #def create_seller(self, seller: Seller):
-
-    
+  
     def fake_decode_token(self, token):
         user = self.get_users(token)
         return user
-    
-    def get_password_hash(self, password):
-        return pwd_context.hash(password)
-
-    def verify_password(self, plain_password, hashed_password):
-        return pwd_context.verify(plain_password, hashed_password)
     
     def get_current_user(self, token: Annotated[str, Depends(oauth2_scheme)]):
         credentials_exception = HTTPException(
@@ -83,19 +72,6 @@ class UserService():
         
 
     
-    def get_current_active_user(self, current_user: Annotated[User, Depends(get_current_user)]):
-        if current_user.disabled:
-            raise HTTPException(status_code=400, detail="Inactive user")
-        return current_user
-    
-    def authenticate_user(self, username: str, password: str):
-        user = self.user_rep.get_user(username)
-        if not user:
-            return False 
-        pwd_hash = self.get_password_hash(password)
-        if not self.verify_password(password, pwd_hash):
-            return False
-        return user
     
     # def create_access_token(self, data: dict, expires_delta: timedelta | None = None):
     #     to_encode = data.copy()

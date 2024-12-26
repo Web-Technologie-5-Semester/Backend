@@ -10,6 +10,7 @@ from jwt.exceptions import InvalidTokenError
 from functools import partial
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from user.models import Token
+from user.authentication import authenticate_user
 
 
 SECRET_KEY = "97185efe61e4cdb4a5052f0a4fef3de03c3d946669d40a43cebcd6906d26f8a5"
@@ -29,7 +30,7 @@ class TokenData:
     def login_for_access_token(self,
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     ) -> Token: 
-        user = self.user_serv.authenticate_user(form_data.username, form_data.password)
+        user = authenticate_user(form_data.username, form_data.password)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

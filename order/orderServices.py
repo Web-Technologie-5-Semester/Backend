@@ -48,3 +48,5 @@ class OrderItemService():
     
     def delete_an_order_item(self, unique_oder_item_id :int) -> None:
         return self.orderRepo.delete_by_id(unique_oder_item_id)
+    
+#TODO: soll alles auf einmal geschickt werden? oder wie jetzt erst bestellung, dann jedes item einzeln

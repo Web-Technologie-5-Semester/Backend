@@ -1,11 +1,12 @@
 #wenn neues buch angelegt, muss schauen ob autor schon da, wenn nicht, dann neuen anlegen, wenn ja dann zu autor repository 
-from fastapi import Depends, HTTPException
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select, Engine
 from db import get_session
-from inventory.exception import NotFoundException
+from inventory.exception import ForbiddenException
 from inventory.models import AuthorCreate, Book, BookCreate, Author, Genre, Publisher, GenreCreate, PublisherCreate
 from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
+from user.models import User
 # keine datenbankabfragen 
 
 
@@ -27,6 +28,7 @@ class BookService():
     
     def delete_book_by_isbn(self, isbn: str):
         return self.book_rep.delete_by_isbn(isbn)
+        
     
     def create(self, book: BookCreate):
         #author = self.book_rep.check_author(book.author)
@@ -49,7 +51,7 @@ class BookService():
                 word.lower() in book.publisher.name.lower()):
                     matching_books.append(book)
         return matching_books
-    
+ 
 
 class AuthorService():
     session :Session = None
@@ -132,4 +134,3 @@ class PublisherService():
         publisher = self.publisher_rep.update(id, new_publisher)
         return publisher
     
-#TODO: Checken, ob jemand die richtige rolle zum bearbeiten hat

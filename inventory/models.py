@@ -107,6 +107,7 @@ class Book(SQLModel, table = True):
     age_recommendation: int = Field()
     publisher_id: int | None = Field(default=None, foreign_key="publisher.id")
     stock: int = Field()
+    image: bytes= Field()
 
     author_id: int = Field(foreign_key="author.id")
     author: Author = Relationship(back_populates="books")

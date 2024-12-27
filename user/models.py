@@ -9,19 +9,6 @@ class Role(SQLModel, table= True):
     role: str = Field()
     users: list["User"] = Relationship(back_populates="role")
 
-
-class Seller(SQLModel, table=True):
-
-    user_id: int = Field(primary_key=True, foreign_key="user.id")
-    bank: str = Field()
-    BIC: int = Field()
-    banking_name: str = Field()
-    IBAN: str = Field()
-    sales_tax_id: int = Field()
-
-    user: list["User"] = Relationship(back_populates="seller")
-
-#User
 class User(SQLModel, table = True):
 
     id: int | None = Field(default= None, primary_key= True)
@@ -37,13 +24,55 @@ class User(SQLModel, table = True):
     password_hash: str = Field()
     role_id: int = Field(foreign_key="role.id")
 
+    disabled: bool = Field(default= False)
+
+    bank: str | None = Field()  
+    BIC: int | None = Field()
+    banking_name: str | None = Field()
+    IBAN: str | None = Field()
+    sales_tax_id: int | None = Field()
+
     role: Role = Relationship(back_populates="users")
-    seller: Seller = Relationship(back_populates="user")
-
-
-
     
 
+class UserResponse(BaseModel):
+    id: int 
+    first_name: str 
+    name: str 
+    email: str 
+    street: str 
+    house_number: int 
+    city: str 
+    district: str 
+    postal_code: int 
+    birthday: str 
+    password_hash: str
+    role_id: int
+    disabled: bool 
+
+
+class UserCreate(BaseModel):
+    first_name: str 
+    name: str 
+    email: str
+    street: str
+    house_number: int 
+    city: str 
+    district: str 
+    postal_code: int 
+    birthday: str 
+    password_hash: str
+    role_id: int 
+
+    bank: str | None = None 
+    BIC: int | None = None
+    banking_name: str | None = None
+    IBAN: str | None = None
+    sales_tax_id: int | None = None
+
+
+    class Config:
+        orm_mode = True
 
 class Token(BaseModel):
     access_token: str

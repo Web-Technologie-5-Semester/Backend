@@ -34,7 +34,7 @@ class Order_Item(SQLModel, table=True):
     
     order: Order = Relationship(back_populates="items")  
 
-    
+#TODO: Order create gehört zu models 
 
 
     

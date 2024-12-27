@@ -117,7 +117,7 @@ class BooksRepository:
             raise NotFoundException(isbn, Book.__name__)
         self.session.delete(result)
         self.session.commit()
-        return f" Book {result} is deleted"   
+        return None   
     
     def mapping_book(self, book: Book):
         new_book = Book(

@@ -11,7 +11,7 @@ class NotFoundException(Exception):
 class ForbiddenException(Exception):
 
     def to_string(self) -> str:
-        return "Permission denied"
+        return "This is none of your business"
     
 
 class ExistingException(Exception):

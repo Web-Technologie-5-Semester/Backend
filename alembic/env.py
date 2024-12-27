@@ -4,9 +4,10 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool, MetaData
 
 from alembic import context
-from main import sql_url
-from inventory.models import Book, Author, Genre, Publisher
-from sqlmodel import SQLModel
+from db import sql_url
+from user.models import SQLModel
+from inventory.models import SQLModel
+from order.orderModels import SQLModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

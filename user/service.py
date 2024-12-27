@@ -27,9 +27,8 @@ class UserService():
         self.user_rep = UserRepository(session)
         self.user = User()
     
-
-    def get_user(self, email: str):
-        users :User = self.user_rep.get_user(email)
+    def get_users(self, email: str):
+        users :User = self.user_rep.get_users(email)
         if not users:
             return None
         return users
@@ -70,17 +69,3 @@ class UserService():
         except:
             raise credentials_exception
         
-
-    
-    
-    # def create_access_token(self, data: dict, expires_delta: timedelta | None = None):
-    #     to_encode = data.copy()
-    #     if expires_delta:
-    #         expire = datetime.now(timezone.utc) + expires_delta
-    #     else:
-    #         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    #     to_encode.update({"exp": expire})
-    #     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    #     return encoded_jwt
-
-#TODO: alle endpunkte sperren, bis auf neuen nutzer anlegen und gets öffentlich

@@ -9,7 +9,6 @@ class Role(SQLModel, table= True):
     role: str = Field()
     users: list["User"] = Relationship(back_populates="role")
 
-
 class User(SQLModel, table = True):
 
     id: int | None = Field(default= None, primary_key= True)
@@ -24,6 +23,7 @@ class User(SQLModel, table = True):
     birthday: str = Field()
     password_hash: str = Field()
     role_id: int = Field(foreign_key="role.id")
+
     disabled: bool = Field(default= False)
 
     bank: str | None = Field()  
@@ -50,6 +50,7 @@ class UserResponse(BaseModel):
     role_id: int
     disabled: bool 
 
+
 class UserCreate(BaseModel):
     first_name: str 
     name: str 
@@ -68,6 +69,7 @@ class UserCreate(BaseModel):
     banking_name: str | None = None
     IBAN: str | None = None
     sales_tax_id: int | None = None
+
 
     class Config:
         orm_mode = True

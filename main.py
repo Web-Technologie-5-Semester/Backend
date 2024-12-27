@@ -44,7 +44,6 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-
 #Exception###############################################################
 @app.exception_handler(NotFoundException)
 async def not_found_handler(request: Request, exc: NotFoundException):
@@ -67,10 +66,6 @@ async def forbidden_handler(request: Request, exc: ExistingException):
         content= {"message": exc.to_string()}
     )
 ####################################################################
-
-
-
-# Order
 
 
 

@@ -15,12 +15,12 @@ class UserRepository:
     def get_all(self):
         users = self.session.exec(User).all()
         return users
-    
+
     def get_user(self, email: str) -> User:
         stmt = select(User).where(User.email == email)
         result: User= self.session.exec(stmt).scalars().first()
         return result
-
+    
     def create_user(self, email: str, password_hash: str):
         new_user = User(email=email, password_hash=password_hash)
         self.session.add(new_user)
@@ -73,3 +73,4 @@ class UserRepository:
             return user_resp
         else:
             return ExistingException(user.id, User.__name__)
+

@@ -1,7 +1,7 @@
 from sqlmodel import SQLModel, Session
 from sqlalchemy import select, Engine
 
-from .models import User, UserResponse, UserCreate
+from .models import User, UserResponse, UserCreate, TokenTable
 from .exception import ExistingException
 
 
@@ -73,4 +73,8 @@ class UserRepository:
             return user_resp
         else:
             return ExistingException(user.id, User.__name__)
-
+    
+    def check_valid_token(self, token: str):
+        stmt = select(TokenTable).where(TokenTable.access_token == token)
+        result = self.session.exec(stmt).scalars().first()
+        return result

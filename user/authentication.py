@@ -33,3 +33,13 @@ def authenticate_user(username: str, password: str):
     if not verify_password(password, pwd_hash):
         return False
     return user
+
+def logout_user(token: str):
+    valid_token = user_rep.check_valid_token(token)
+    if token in valid_token:
+        valid_token.discard(token)
+        return "Logout succsessful"
+    else:
+        raise HTTPException(status_code=400, detail="Invalid token")
+
+#TODO: Log out, token destroyen 

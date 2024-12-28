@@ -80,3 +80,10 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str | None = None
+
+class TokenTable(SQLModel, table = True):
+
+    user_id: int = Field(foreign_key="user.id")
+    access_token: str = Field(primary_key=True)
+    status: bool = Field()
+    created_date: str = Field()

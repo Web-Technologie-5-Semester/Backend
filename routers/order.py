@@ -45,4 +45,3 @@ async def update_order_item(unique_order_item_id: int, order_item_update: OrderI
 async def delete_order_item(unique_order_item_id: int, session: Session = Depends(get_session)):
     return OrderItemService(session).delete_an_order_item(unique_order_item_id)
 
-#TODO: welche endpoints hier locken 

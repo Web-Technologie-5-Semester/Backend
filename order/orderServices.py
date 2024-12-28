@@ -50,3 +50,4 @@ class OrderItemService():
         return self.orderRepo.delete_by_id(unique_oder_item_id)
     
 #TODO: soll alles auf einmal geschickt werden? oder wie jetzt erst bestellung, dann jedes item einzeln
+#TODO: Payment einrichten, stripe? Gute Doku

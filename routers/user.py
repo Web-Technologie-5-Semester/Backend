@@ -25,11 +25,6 @@ async def create_user(user: UserCreate, session: Session = Depends(get_session))
 async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]):
     return current_user
 
-
 @user_router.post("/token")
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     return TokenData().login_for_access_token(form_data)
-
-@user_router.post("/logout")
-async def logout(token: str):
-    return logout_user(token)

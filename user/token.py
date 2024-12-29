@@ -11,6 +11,7 @@ from functools import partial
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from user.models import Token
 from user.authentication import authenticate_user
+from user.repositories import UserRepository
 
 
 SECRET_KEY = "97185efe61e4cdb4a5052f0a4fef3de03c3d946669d40a43cebcd6906d26f8a5"
@@ -26,6 +27,7 @@ class TokenData:
     def __init__(self):
         self.session = session
         self.user_serv = UserService(session)
+        self.user_rep = UserRepository(session)
 
     def login_for_access_token(self,
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -40,6 +42,8 @@ class TokenData:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXP_MIN)
         access_token = self.create_access_token(
             data={"sub": user.email}, expires_delta=access_token_expires)
+        # user_id = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM]).get("sub")
+        # self.user_rep.add_access_token(access_token, user_id)
         return Token(access_token=access_token, token_type="bearer")
 
     def create_access_token(self, data: dict, expires_delta: timedelta | None = None):

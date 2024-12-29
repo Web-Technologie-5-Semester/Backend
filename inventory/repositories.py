@@ -130,7 +130,8 @@ class BooksRepository:
             price = book.price,
             age_recommendation = book.age_recommendation,
             publisher_id = book.publisher_id,
-            stock = book.stock
+            stock = book.stock,
+            image = book.image
 
         )
 
@@ -158,7 +159,8 @@ class BooksRepository:
                 id = new_book.publisher.id,
                 name = new_book.publisher.name
             ),
-            stock = new_book.stock
+            stock = new_book.stock,
+            image = new_book.image
         )
         return book_resp
 

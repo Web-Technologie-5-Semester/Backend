@@ -127,6 +127,7 @@ class BookResponse(BaseModel):
     age_recommendation: int
     publisher: Publisher
     stock: int
+    image: bytes
     
     class Config:
         orm_mode = True
@@ -142,6 +143,7 @@ class BookCreate(BaseModel):
     age_recommendation : int
     publisher_id : int
     stock: int
+    image: bytes
 
     class Config:
         orm_mode = True
@@ -155,6 +157,7 @@ class BookUpdate(BaseModel):
     price : str | None = None
     age_recommendation : int | None = None
     publisher : str | None = None
+    image: bytes | None = None
 
 
 

@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
+import jwt
 from sqlmodel import SQLModel, Session
 from sqlalchemy import select, Engine
 
-from .models import User, UserResponse, UserCreate
+from .models import User, UserResponse, UserCreate, TokenTable
 from .exception import ExistingException
 
 
@@ -73,4 +75,16 @@ class UserRepository:
             return user_resp
         else:
             return ExistingException(user.id, User.__name__)
-
+        
+    # def add_access_token(self, token: str, user_id: int):
+    #     created_at = datetime.now(timezone.utc)
+    #     new_token = TokenTable(access_token=token, created_date=created_at, user_id=user_id)
+    #     self.session.add(new_token)
+    #     self.session.commit()
+    #     self.session.refresh(new_token)
+    #     return new_token
+    
+    # def check_valid_token(self, token: str):
+    #     stmt = select(TokenTable).where(TokenTable.access_token == token)
+    #     result = self.session.exec(stmt).scalars().first()
+    #     return result

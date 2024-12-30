@@ -27,10 +27,10 @@ class User(SQLModel, table = True):
     disabled: bool = Field(default= False)
 
     bank: str | None = Field()  
-    BIC: int | None = Field()
+    BIC: str | None = Field()
     banking_name: str | None = Field()
     IBAN: str | None = Field()
-    sales_tax_id: int | None = Field()
+    sales_tax_id: str | None = Field()
 
     role: Role = Relationship(back_populates="users")
     
@@ -46,7 +46,7 @@ class UserResponse(BaseModel):
     district: str 
     postal_code: int 
     birthday: str 
-    password_hash: str
+    password: str
     role_id: int
     disabled: bool 
 
@@ -61,14 +61,14 @@ class UserCreate(BaseModel):
     district: str 
     postal_code: int 
     birthday: str 
-    password_hash: str
+    password: str
     role_id: int 
 
     bank: str | None = None 
-    BIC: int | None = None
+    BIC: str | None = None
     banking_name: str | None = None
     IBAN: str | None = None
-    sales_tax_id: int | None = None
+    sales_tax_id: str | None = None
 
 
     class Config:
@@ -81,9 +81,3 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: str | None = None
 
-class TokenTable(SQLModel, table = True):
-
-    user_id: int = Field(foreign_key="user.id")
-    access_token: str = Field(primary_key=True)
-    status: bool = Field()
-    created_date: str = Field()

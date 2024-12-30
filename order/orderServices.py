@@ -51,3 +51,4 @@ class OrderItemService():
     
 #TODO: soll alles auf einmal geschickt werden? oder wie jetzt erst bestellung, dann jedes item einzeln
 #TODO: Payment einrichten, stripe? Gute Doku
+

@@ -3,7 +3,7 @@ import jwt
 from sqlmodel import SQLModel, Session
 from sqlalchemy import select, Engine
 
-from .models import User, UserResponse, UserCreate, TokenTable
+from .models import User, UserResponse, UserCreate
 from .exception import ExistingException
 
 
@@ -49,7 +49,7 @@ class UserRepository:
                 district= user.district,
                 postal_code= user.postal_code,
                 birthday = user.birthday,
-                password_hash = user.password_hash,
+                password_hash = user.password,
                 role_id = user.role_id,
             )
             self.session.add(new_user)
@@ -67,7 +67,7 @@ class UserRepository:
             district= new_user.district,
             postal_code= new_user.postal_code,
             birthday = new_user.birthday,
-            password_hash = new_user.password_hash,
+            password = new_user.password_hash,
             role_id = new_user.role_id,
             disabled = new_user.disabled
         )
@@ -75,16 +75,3 @@ class UserRepository:
             return user_resp
         else:
             return ExistingException(user.id, User.__name__)
-        
-    # def add_access_token(self, token: str, user_id: int):
-    #     created_at = datetime.now(timezone.utc)
-    #     new_token = TokenTable(access_token=token, created_date=created_at, user_id=user_id)
-    #     self.session.add(new_token)
-    #     self.session.commit()
-    #     self.session.refresh(new_token)
-    #     return new_token
-    
-    # def check_valid_token(self, token: str):
-    #     stmt = select(TokenTable).where(TokenTable.access_token == token)
-    #     result = self.session.exec(stmt).scalars().first()
-    #     return result

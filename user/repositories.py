@@ -3,7 +3,7 @@ import jwt
 from sqlmodel import SQLModel, Session
 from sqlalchemy import select, Engine
 
-from .models import User, UserResponse, UserCreate
+from .models import User, UserResponse, UserCreate, TokenTable
 from .exception import ExistingException
 
 
@@ -75,3 +75,4 @@ class UserRepository:
             return user_resp
         else:
             return ExistingException(user.id, User.__name__)
+

@@ -75,6 +75,7 @@ async def create_author(
     _: bool = Depends(role_checker_factory(allowed_roles=[SELLER_ROLE])),
     session: Session = Depends(get_session)):
     return AuthorService(session).create(author)
+#TODO: nicht möglich trotz authorization drauf zuzugreifen 
 
 @inv_router.put("/author/{author_id}", response_model=Author)
 async def update_author(

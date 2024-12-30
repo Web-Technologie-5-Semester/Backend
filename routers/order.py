@@ -12,6 +12,7 @@ order_router = APIRouter()
 @order_router.post("/order", response_model=OrderResponse)
 async def add_order(order: OrderCreate, session: Session = Depends(get_session)):
     return OrderService(session).create_a_new_order(order)
+#TODO: Bestellungen anhand User ID rausgeben
 
 @order_router.get("/order/{unique_order_id}", response_model=OrderResponse)
 async def get_order_by_id(unique_order_id: int, session: Session = Depends(get_session)):

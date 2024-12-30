@@ -42,4 +42,3 @@ def logout_user(token: str):
     else:
         raise HTTPException(status_code=400, detail="Invalid token")
 
-#TODO: Log out, token destroyen 

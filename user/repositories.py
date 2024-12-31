@@ -3,7 +3,9 @@ import jwt
 from sqlmodel import SQLModel, Session
 from sqlalchemy import select, Engine
 
-from .models import User, UserResponse, UserCreate, TokenTable
+from user.crypto import get_password_hash
+
+from .models import User, UserResponse, UserCreate
 from .exception import ExistingException
 
 
@@ -35,7 +37,7 @@ class UserRepository:
         result = self.session.exec(stmt).scalars().first()
         return result
     
-    def check_user(self, user: UserCreate):
+    def add_user_if_not_exist(self, user: UserCreate):
         stmt = select(User).where(User.email == user.email) 
         result = self.session.exec(stmt).scalars().first()
         if not result:
@@ -49,8 +51,13 @@ class UserRepository:
                 district= user.district,
                 postal_code= user.postal_code,
                 birthday = user.birthday,
-                password_hash = user.password,
+                password_hash = get_password_hash(user.password),
                 role_id = user.role_id,
+                bank = user.bank,
+                BIC = user.BIC,
+                banking_name= user.banking_name,
+                IBAN = user.IBAN,
+                sales_tax_id= user.sales_tax_id 
             )
             self.session.add(new_user)
             self.session.commit()
@@ -67,9 +74,12 @@ class UserRepository:
             district= new_user.district,
             postal_code= new_user.postal_code,
             birthday = new_user.birthday,
-            password = new_user.password_hash,
             role_id = new_user.role_id,
-            disabled = new_user.disabled
+            bank = new_user.bank,
+            BIC = new_user.BIC,
+            banking_name= new_user.banking_name,
+            IBAN = new_user.IBAN,
+            sales_tax_id= new_user.sales_tax_id 
         )
 
             return user_resp

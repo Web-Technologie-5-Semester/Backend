@@ -23,6 +23,8 @@ class User(SQLModel, table = True):
     birthday: str = Field()
     password_hash: str = Field()
     role_id: int = Field(foreign_key="role.id")
+    disabled: bool = Field(default=False)
+
 
     bank: str | None = Field()  
     BIC: str | None = Field()

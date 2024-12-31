@@ -9,6 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
 from user.models import User, Token, TokenData
 from db import session
+from user.crypto import verify_password
 
 
 
@@ -28,7 +29,7 @@ class UserService():
         self.user = User()
     
     def get_users(self, email: str):
-        users :User = self.user_rep.get_users(email)
+        users :User = self.user_rep.get_user(email)
         if not users:
             return None
         return users
@@ -36,6 +37,14 @@ class UserService():
     def create_user(self, user: User):
         new_user = self.user_rep.add_user_if_not_exist(user)
         return new_user
+    
+    def delete_user(self, current_user: User):
+        user: User = self.user_rep.get_user(current_user.email)
+        if not user:
+            return None
+        else:
+            self.user_rep.delete_user(user.email)
+            return "User deleted"
   
     def fake_decode_token(self, token):
         user = self.get_users(token)
@@ -69,3 +78,4 @@ class UserService():
         except:
             raise credentials_exception
         
+    

@@ -86,3 +86,9 @@ class UserRepository:
         else:
             return ExistingException(user.id, User.__name__)
 
+    def delete_user(self, email: str):
+        stmt = select(User).where(User.email == email)
+        result = self.session.exec(stmt).scalars().first()
+        self.session.delete(result)
+        self.session.commit()
+        return result

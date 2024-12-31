@@ -29,4 +29,7 @@ async def read_users_me(current_user: Annotated[User, Depends(get_current_active
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     return TokenData().login_for_access_token(form_data)
 
-#TODO: user löschen
+@user_router.delete("/user")
+async def delete_user(current_user: Annotated[User, Depends(get_current_active_user)]):
+    return user_serv.delete_user(current_user)
+

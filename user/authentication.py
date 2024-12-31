@@ -6,6 +6,7 @@ from db import session
 from user.models import User
 from user.repositories import UserRepository
 from user.service import UserService
+from user.crypto import verify_password
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 user_rep = UserRepository(session)
@@ -13,10 +14,6 @@ user_serv = UserService(session)
 
 # def init(session: Session):
 #     user_rep = UserRepository(session)
-
-
-def verify_password(plain_password: str, hashed_password: str):
-    return pwd_context.verify(plain_password, hashed_password)
 
 def get_current_active_user(current_user: Annotated[User, Depends(user_serv.get_current_user)]):
     if current_user.disabled:

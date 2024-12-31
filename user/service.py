@@ -34,7 +34,7 @@ class UserService():
         return users
     
     def create_user(self, user: User):
-        new_user = self.user_rep.check_user(user)
+        new_user = self.user_rep.add_user_if_not_exist(user)
         return new_user
   
     def fake_decode_token(self, token):

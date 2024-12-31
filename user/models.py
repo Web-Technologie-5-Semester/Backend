@@ -24,8 +24,6 @@ class User(SQLModel, table = True):
     password_hash: str = Field()
     role_id: int = Field(foreign_key="role.id")
 
-    disabled: bool = Field(default= False)
-
     bank: str | None = Field()  
     BIC: str | None = Field()
     banking_name: str | None = Field()
@@ -46,9 +44,13 @@ class UserResponse(BaseModel):
     district: str 
     postal_code: int 
     birthday: str 
-    password: str
     role_id: int
-    disabled: bool 
+
+    bank: str | None = None 
+    BIC: str | None = None
+    banking_name: str | None = None
+    IBAN: str | None = None
+    sales_tax_id: str | None = None
 
 
 class UserCreate(BaseModel):

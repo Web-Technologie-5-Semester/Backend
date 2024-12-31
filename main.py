@@ -12,7 +12,6 @@ from order.orderServices import OrderItemService, OrderService
 from user.models import User
 from inventory.exception import  ExistingException, ForbiddenException, NotFoundException
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.types import ASGIApp
 from starlette.middleware.base import BaseHTTPMiddleware
 from db import engine
 from routers.inventory import inv_router

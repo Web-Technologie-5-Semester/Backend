@@ -11,6 +11,7 @@ fastapi-jwt-auth = "*"
 fastapi-users = {extras = ["sqlalchemy"], version = "*"}
 jose = "*"
 pyjwt = "*"
+pandas = "*"
 
 [dev-packages]
 

@@ -25,6 +25,7 @@ class User(SQLModel, table = True):
     role_id: int = Field(foreign_key="role.id")
     disabled: bool = Field(default=False)
 
+
     bank: str | None = Field()  
     BIC: str | None = Field()
     banking_name: str | None = Field()

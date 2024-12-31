@@ -15,6 +15,7 @@ user_serv = UserService(session)
 # def init(session: Session):
 #     user_rep = UserRepository(session)
 
+
 def get_current_active_user(current_user: Annotated[User, Depends(user_serv.get_current_user)]):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")

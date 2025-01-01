@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlmodel import Session
 from db import get_session
+from send_email import send_email_async
 from user.models import User, UserCreate
 from user.service import UserService
 from db import session
@@ -19,7 +20,15 @@ user_serv = UserService(session)
 
 @user_router.post("/user")
 async def create_user(user: UserCreate, session: Session = Depends(get_session)):
-    return UserService(session).create_user(user)
+    user = UserService(session).create_user(user)
+
+    await send_email_async(
+        subject="Welcome to Bücher24",
+        email_to=user.email,
+        body=f"Welcome to Bücher24, you have successfully registered! Your username is {user.email}"
+    )
+
+    return user
 
 @user_router.get("/users/me")
 async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]):

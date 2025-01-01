@@ -84,7 +84,7 @@ class UserRepository:
 
             return user_resp
         else:
-            return ExistingException(user.id, User.__name__)
+            return ExistingException(result.id, User.__name__)
 
     def delete_user(self, email: str):
         stmt = select(User).where(User.email == email)

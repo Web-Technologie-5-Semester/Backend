@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlmodel import Session
 from db import get_session
 from send_email import send_email_async
-from user.models import User, UserCreate
+from user.models import User, UserCreate, UserResponse, UserUpdate
 from user.service import UserService
 from db import session
 from user.token import TokenData
@@ -41,3 +41,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
 @user_router.delete("/user")
 async def delete_user(current_user: Annotated[User, Depends(get_current_active_user)]):
     return user_serv.delete_user(current_user)
+
+@user_router.put("/users/me", response_model=UserResponse)
+async def update_user(new_user: UserUpdate, current_user: Annotated[User, Depends(get_current_active_user)]):
+    return user_serv.update(new_user, current_user)

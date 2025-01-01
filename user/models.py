@@ -36,7 +36,6 @@ class User(SQLModel, table = True):
     
 
 class UserResponse(BaseModel):
-    id: int 
     first_name: str 
     name: str 
     email: str 
@@ -46,13 +45,15 @@ class UserResponse(BaseModel):
     district: str 
     postal_code: int 
     birthday: str 
-    role_id: int
 
     bank: str | None = None 
     BIC: str | None = None
     banking_name: str | None = None
     IBAN: str | None = None
     sales_tax_id: str | None = None
+
+    class Config:
+        orm_mode = True
 
 
 class UserCreate(BaseModel):
@@ -74,6 +75,26 @@ class UserCreate(BaseModel):
     IBAN: str | None = None
     sales_tax_id: str | None = None
 
+
+    class Config:
+        orm_mode = True
+
+class UserUpdate(BaseModel):
+    first_name: str | None = None
+    name: str | None = None
+    email: str | None = None
+    street: str | None = None
+    house_number: int | None = None
+    city: str | None = None
+    district: str | None = None
+    postal_code: int | None = None
+    birthday: str | None = None
+
+    bank: str | None = None 
+    BIC: str | None = None
+    banking_name: str | None = None
+    IBAN: str | None = None
+    sales_tax_id: str | None = None
 
     class Config:
         orm_mode = True

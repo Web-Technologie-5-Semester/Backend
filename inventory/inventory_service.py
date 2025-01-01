@@ -1,19 +1,10 @@
 #wenn neues buch angelegt, muss schauen ob autor schon da, wenn nicht, dann neuen anlegen, wenn ja dann zu autor repository 
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import select, Engine
-from db import get_session
-from inventory.exception import ForbiddenException
 from inventory.models import AuthorCreate, Book, BookCreate, Author, Genre, Publisher, GenreCreate, PublisherCreate
 from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
-from user.models import User
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sqlmodel import Session
-from typing import List# keine datenbankabfragen 
-
-
-
 
 class BookService():
     session :Session = None

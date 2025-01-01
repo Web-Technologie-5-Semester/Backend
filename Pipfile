@@ -13,6 +13,8 @@ jose = "*"
 pyjwt = "*"
 pandas = "*"
 faker = "*"
+pillow="*"
+scikit-learn="*"
 
 [dev-packages]
 

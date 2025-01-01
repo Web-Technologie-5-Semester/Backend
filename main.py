@@ -18,6 +18,7 @@ from db import engine
 from routers.inventory import inv_router
 from routers.order import order_router
 from routers.user import user_router
+from routers.payment import payment_router
 
 
 @asynccontextmanager
@@ -34,7 +35,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(inv_router)
 app.include_router(order_router)
 app.include_router(user_router)
-
+app.include_router(payment_router)
 
 app.add_middleware(
     CORSMiddleware,

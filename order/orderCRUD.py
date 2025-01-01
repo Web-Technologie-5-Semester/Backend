@@ -57,6 +57,8 @@ class OrderItemCreate(BaseModel):
     
     unique_order_id: int
     product_id: str  
+    name: str
+    image: str
     quantity: int = 1
     price: float
 
@@ -66,7 +68,7 @@ class OrderItemCreate(BaseModel):
 
 class OrderItemResponse(BaseModel):
 
-    unique_order_id: int
+    unique_order_item_id: int
     product_id: str
     quantity: int
     price: float

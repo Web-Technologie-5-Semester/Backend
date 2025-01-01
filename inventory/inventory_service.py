@@ -7,7 +7,10 @@ from inventory.exception import ForbiddenException
 from inventory.models import AuthorCreate, Book, BookCreate, Author, Genre, Publisher, GenreCreate, PublisherCreate
 from inventory.repositories import BooksRepository, AuthorRepository, GenreRepository, PublisherRepository
 from user.models import User
-# keine datenbankabfragen 
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sqlmodel import Session
+from typing import List# keine datenbankabfragen 
 
 
 
@@ -31,9 +34,6 @@ class BookService():
         
     
     def create(self, book: BookCreate):
-        #author = self.book_rep.check_author(book.author)
-        #genre = self.book_rep.check_genre(book.genre)
-        #publisher = self.book_rep.check_publisher(book.publisher)
         new_book = self.book_rep.mapping_book(book)
         return new_book
     
@@ -51,7 +51,27 @@ class BookService():
                 word.lower() in book.publisher.name.lower()):
                     matching_books.append(book)
         return matching_books
- 
+    
+    def get_image(self, isbn: str) -> bytes:
+        book = self.book_rep.get_by_isbn(isbn)
+        return book.image
+    
+    def get_recommendations_for(self, isbn: str) -> list[Book]:
+        books = self.book_rep.get_all_info()
+        
+        book_features = [
+            f"{b.title} {b.author.name} {b.genre.name} {b.publisher.name}"
+            for b in books
+        ]
+        vectorizer = TfidfVectorizer()
+        tfidf_matrix = vectorizer.fit_transform(book_features)
+        cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
+        input_book_index = next(i for i, b in enumerate(books) if b.isbn == isbn)
+        sim_scores = list(enumerate(cosine_sim[input_book_index]))
+        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+        similar_books_indices = [i[0] for i in sim_scores[1:6]] 
+        similar_books = [books[i] for i in similar_books_indices]
+        return similar_books
 
 class AuthorService():
     session :Session = None
@@ -133,4 +153,3 @@ class PublisherService():
     def update(self, id: int, new_publisher: Publisher):
         publisher = self.publisher_rep.update(id, new_publisher)
         return publisher
-    

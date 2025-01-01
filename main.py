@@ -69,5 +69,3 @@ async def forbidden_handler(request: Request, exc: ExistingException):
 if __name__=="__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
 
-#TODO: Empfehlungssystem? Cosinus similarity
-#TODO: Bestellungen anhand User ID rausgeben

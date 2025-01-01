@@ -1,27 +1,47 @@
-from db import engine
+from sqlmodel import Session
+from db import engine, get_session
 from faker import Faker
 import random
-from inventory.models import Book
+from inventory.models import Author, Book, Genre, Publisher
+from inventory.repositories import AuthorRepository, BooksRepository, GenreRepository, PublisherRepository
 
 fake = Faker()
 
-cursor = engine.connect()
+def generate_books():
+    session = Session(engine)
+    author_ids = []
+    genre_ids = []
+    publisher_ids = []
+    for _ in range(50):
+        author = Author(name= fake.name(), birthday=fake.date());
+        author_ids.append(AuthorRepository(session).create(author).id);
+    
 
-def generate_books(n):
-    for _ in range(n):
+    for _ in range(50):
+        publisher = Publisher(name= fake.name(), birthday=fake.date());
+        publisher_ids.append(PublisherRepository(session).create(publisher).id);
+    
+
+    for _ in range(20):
+        genre = Genre(name= fake.name(), birthday=fake.date());
+        genre_ids.append(GenreRepository(session).create(genre).id);
+    
+
+    for _ in range(2000):
         book = Book(
-            isbn= fake.isbn(),
+            isbn= fake.isbn10(),
             title= fake.sentence(nb_words=4),
-            author= random.randint(6, 7, 9, 10),
+            author_id= random.choice(author_ids),
             release= fake.date(),
-            genre_id= random.randint(1, 2, 3, 4),
-            description= fake.sentence(nb_words=8),
-            price= fake.pricetag(),
-            age_recommendation= random.randint(0, 6, 12),
-            publisher= random.randint(1, 2, 3, 4),
-            stock= random.randint(100, 200, 300)
+            genre_id= random.choice(genre_ids),
+            description= fake.sentence(nb_words=200),
+            price= random.randint(5, 100),
+            age_recommendation= random.randint(0, 18),
+            publisher_id= random.choice(publisher_ids),
+            stock= random.randint(100, 300),
+            image= fake.image(size=(200, 200), image_format='jpeg')
         )
-        cursor.execute('INSERT INTO books (isbn, title, author, release, genre, description, price, age_recommendation, publisher, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (isbn, title, author, release, genre, description, price, age_recommendation, publisher, stock))
 
-generate_books(100)
-cursor.commit()
+        BooksRepository(session).mapping_book(book)
+    
+generate_books()

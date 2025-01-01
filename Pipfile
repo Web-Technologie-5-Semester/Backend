@@ -12,6 +12,9 @@ fastapi-users = {extras = ["sqlalchemy"], version = "*"}
 jose = "*"
 pyjwt = "*"
 pandas = "*"
+faker = "*"
+pillow="*"
+scikit-learn="*"
 
 [dev-packages]
 

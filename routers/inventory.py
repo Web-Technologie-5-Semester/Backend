@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlmodel import Session
 from constants import SELLER_ROLE
 from inventory.models import Author, AuthorCreate, AuthorResponse, Book, BookCreate, BookResponse, Genre, GenreCreate, GenreResponse, Publisher, PublisherCreate, PublisherResponse
@@ -48,10 +48,25 @@ async def update_book(
     return BookService(session).update(isbn, new_book)
                                  
 #such endpunkt
-@inv_router.post("/search", response_model=list[Book])
+@inv_router.get("/search", response_model=list[BookResponse])
 async def search(word: str, session: Session = Depends(get_session)):
     return BookService(session).search_book(word)
 
+@inv_router.get("/book/{isbn}/recommendations", response_model=list[BookResponse])
+async def get_recommendations(isbn: str, session: Session = Depends(get_session)):
+    return BookService(session).get_recommendations_for(isbn)
+
+@inv_router.get("/book/{isbn}/image", 
+    responses = {
+        200: {
+            "content": {"image/jpeg": {}}
+        }
+    },
+    response_class=Response
+)
+async def get_image(isbn: str, session: Session = Depends(get_session)):
+    bytes = BookService(session).get_image(isbn)
+    return Response(content=bytes, media_type="image/jpeg")
 
 #Auhtor
 @inv_router.get("/author", response_model=list[Author])

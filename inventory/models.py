@@ -115,7 +115,6 @@ class Book(SQLModel, table = True):
     publisher: Publisher | None = Relationship(back_populates="books")
 
 
-
 class BookResponse(BaseModel):
     isbn: str
     title: str
@@ -127,7 +126,6 @@ class BookResponse(BaseModel):
     age_recommendation: int
     publisher: Publisher
     stock: int
-    image: bytes
     
     class Config:
         orm_mode = True

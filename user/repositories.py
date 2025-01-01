@@ -3,9 +3,10 @@ import jwt
 from sqlmodel import SQLModel, Session
 from sqlalchemy import select, Engine
 
+from inventory.exception import NotFoundException
 from user.crypto import get_password_hash
 
-from .models import User, UserResponse, UserCreate
+from .models import User, UserResponse, UserCreate, UserUpdate
 from .exception import ExistingException
 
 
@@ -84,11 +85,27 @@ class UserRepository:
 
             return user_resp
         else:
-            return ExistingException(user.id, User.__name__)
+            return ExistingException(result.id, User.__name__)
 
     def delete_user(self, email: str):
         stmt = select(User).where(User.email == email)
         result = self.session.exec(stmt).scalars().first()
         self.session.delete(result)
         self.session.commit()
+        return result
+    
+    def update_user(self, new_user: UserUpdate, current_user: User):
+        stmt = select(User).where(User.email == current_user.email)
+        result :User = self.session.exec(stmt).scalars().first()
+        if result == None:
+            raise NotFoundException(user.email, User.__name__)
+        for key,value in dict(new_user).items():
+            if key != "email":
+                if hasattr(result, key):
+                    setattr(result, key, value)
+                else:
+                    raise Exception(f'inexistent attribute {key}')
+        self.session.add(result)
+        self.session.commit()
+        self.session.refresh(result)
         return result

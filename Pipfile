@@ -15,6 +15,7 @@ pandas = "*"
 faker = "*"
 pillow="*"
 scikit-learn="*"
+fastapi-mail = "*"
 
 [dev-packages]
 

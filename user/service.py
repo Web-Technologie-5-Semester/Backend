@@ -7,7 +7,7 @@ from user.repositories import UserRepository
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
-from user.models import User, Token, TokenData
+from user.models import User, Token, TokenData, UserCreate, UserUpdate
 from db import session
 from user.crypto import verify_password
 
@@ -45,6 +45,10 @@ class UserService():
         else:
             self.user_rep.delete_user(user.email)
             return "User deleted"
+        
+    def update(self, new_user: UserUpdate, current_user: User):
+        user = self.user_rep.update_user(new_user, current_user)
+        return user
   
     def fake_decode_token(self, token):
         user = self.get_users(token)

@@ -12,11 +12,9 @@ class Order(SQLModel, table=True):
     unique_order_id: int | None = Field(default=None, primary_key=True)
     
     # user_id: int = Field(foreign_key="user.id")  
-    user_id: int = Field()  
+    user_id: str = Field()  
     
     created_at: date = Field(default=date.today)
-    shipping_address: str = Field()
-    billing_address: str = Field()
     status: StatusEnum = Field()
     
     items: List["Order_Item"] = Relationship(back_populates="order")  

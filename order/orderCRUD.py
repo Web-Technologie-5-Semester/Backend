@@ -12,16 +12,8 @@ class StatusEnum(str, Enum):
         orm_mode = True
 
 
-
-
-
 class OrderCreate(BaseModel):
-    user_id: int
-
-    shipping_address: str  
-    billing_address: str
-
-    status: StatusEnum = StatusEnum.SELECTED
+    user_id: str
 
     class Config:
         orm_mode = True
@@ -29,7 +21,7 @@ class OrderCreate(BaseModel):
 
 class OrderResponse(BaseModel):
     unique_order_id: int
-    user_id: int
+    user_id: str
     created_at: date
     shipping_address: str  
     billing_address: str

@@ -15,11 +15,8 @@ class OrderRepository:
     #   CREATE
     def create_new_order(self, order: OrderCreate) -> OrderResponse:
         new_order = Order(
-            
             user_id = order.user_id,
-            shipping_address = order.shipping_address, 
-            billing_address = order.billing_address,
-            status = order.status
+            status = StatusEnum.SELECTED
         )
         
         

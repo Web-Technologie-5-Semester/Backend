@@ -126,6 +126,7 @@ class BookResponse(BaseModel):
     age_recommendation: int
     publisher: Publisher
     stock: int
+    image: bytes
     
     class Config:
         orm_mode = True

@@ -46,6 +46,7 @@ class UserRepository:
                 first_name = user.first_name,
                 name = user.name,
                 email = user.email,
+                phone_number= user.phone_number,
                 street= user.street,
                 house_number= user.house_number,
                 city= user.city,
@@ -65,17 +66,16 @@ class UserRepository:
             self.session.refresh(new_user)
 
             user_resp = UserResponse(
-            id = new_user.id,
             first_name = new_user.first_name,
             name = new_user.name,
             email = new_user.email,
+            phone_number= new_user.phone_number,
             street= new_user.street,
             house_number= new_user.house_number,
             city= new_user.city,
             district= new_user.district,
             postal_code= new_user.postal_code,
             birthday = new_user.birthday,
-            role_id = new_user.role_id,
             bank = new_user.bank,
             BIC = new_user.BIC,
             banking_name= new_user.banking_name,

@@ -15,6 +15,7 @@ class User(SQLModel, table = True):
     first_name: str = Field()
     name: str = Field()
     email: str = Field()
+    phone_number: str = Field()
     street: str = Field()
     house_number: int = Field()
     city: str = Field()
@@ -39,6 +40,7 @@ class UserResponse(BaseModel):
     first_name: str 
     name: str 
     email: str 
+    phone_number: str
     street: str 
     house_number: int 
     city: str 
@@ -60,6 +62,7 @@ class UserCreate(BaseModel):
     first_name: str 
     name: str 
     email: str
+    phone_number: str
     street: str
     house_number: int 
     city: str 
@@ -83,6 +86,7 @@ class UserUpdate(BaseModel):
     first_name: str | None = None
     name: str | None = None
     email: str | None = None
+    phone_number: str | None = None
     street: str | None = None
     house_number: int | None = None
     city: str | None = None

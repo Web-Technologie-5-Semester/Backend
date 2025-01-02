@@ -1,3 +1,4 @@
+import base64
 from fastapi import APIRouter, Depends, Response
 from sqlmodel import Session
 from constants import SELLER_ROLE
@@ -55,18 +56,6 @@ async def search(word: str, session: Session = Depends(get_session)):
 @inv_router.get("/book/{isbn}/recommendations", response_model=list[BookResponse])
 async def get_recommendations(isbn: str, session: Session = Depends(get_session)):
     return BookService(session).get_recommendations_for(isbn)
-
-@inv_router.get("/book/{isbn}/image", 
-    responses = {
-        200: {
-            "content": {"image/jpeg": {}}
-        }
-    },
-    response_class=Response
-)
-async def get_image(isbn: str, session: Session = Depends(get_session)):
-    bytes = BookService(session).get_image(isbn)
-    return Response(content=bytes, media_type="image/jpeg")
 
 #Auhtor
 @inv_router.get("/author", response_model=list[Author])

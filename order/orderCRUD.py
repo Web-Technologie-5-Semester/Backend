@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from datetime import date
 from enum import Enum
 
@@ -35,9 +35,9 @@ class OrderResponse(BaseModel):
         
 
 class OrderUpdate(BaseModel):
-    shipping_address: str  
-    billing_address: str
-    status: StatusEnum
+    shipping_address: Optional[str]  
+    billing_address: Optional[str]
+    status: Optional[StatusEnum]
 
     class Config:
         orm_mode = True

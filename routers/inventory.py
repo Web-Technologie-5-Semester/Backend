@@ -62,9 +62,9 @@ async def get_recommendations(isbn: str, session: Session = Depends(get_session)
 async def get_authors(session: Session = Depends(get_session)):
     return AuthorService(session).get_all_authors()
 
-@inv_router.get("/author/{author_id}/books", response_model=list[Book])
-async def get_books_by_author(author_id:int, session: Session = Depends(get_session)):
-    return AuthorService(session).get_books_by_author(author_id)
+@inv_router.get("/author/{email}/books", response_model=list[Book])
+async def get_books_by_author(email:str, session: Session = Depends(get_session)):
+    return AuthorService(session).get_books_by_author(email)
 
 @inv_router.delete("/author/{author_id}", response_model=Author)
 async def delete_author_by_id(
@@ -78,8 +78,7 @@ async def create_author(
     author: AuthorCreate, 
     _: bool = Depends(role_checker_factory(allowed_roles=[SELLER_ROLE])),
     session: Session = Depends(get_session)):
-    return AuthorService(session).create(author)
-#TODO: nicht möglich trotz authorization drauf zuzugreifen 
+    return AuthorService(session).create(author) 
 
 @inv_router.put("/author/{author_id}", response_model=Author)
 async def update_author(

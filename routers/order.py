@@ -17,7 +17,7 @@ async def add_order(order: OrderCreate, session: Session = Depends(get_session))
 async def get_order_by_order_id(unique_order_id: int, session: Session = Depends(get_session)):
     return OrderService(session).read_by_unique_order_id(unique_order_id)
 
-@order_router.get("/order/{user_id}", response_model=OrderResponse)
+@order_router.get("/order/user/{user_id}", response_model=list[OrderResponse])
 async def get_order_by_user_id(user_id: str, session: Session = Depends(get_session)):
     return OrderService(session).read_by_unique_user_id(user_id)
 
@@ -31,8 +31,8 @@ async def delete_order(unique_order_id: int, session: Session = Depends(get_sess
 
 
 # OrderItem                                                
-@order_router.post("/order/item", response_model=OrderItemResponse)
-async def add_order_item(json_list: list[dict], session: Session = Depends(get_session)):
+@order_router.post("/order/item", response_model=OrderResponse)
+async def add_order_item(json_list: list[OrderItemCreate], session: Session = Depends(get_session)):
     return OrderItemService(session).add_order_items(json_list)                                  
                                                   
 @order_router.get("/order/item/{unique_order_item_id}", response_model=OrderItemResponse)

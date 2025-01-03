@@ -10,6 +10,7 @@ class Author(SQLModel, table = True):
     id: int | None = Field(default= None, primary_key= True)
     name: str = Field()
     birthday: date = Field()
+    email: str = Field()
 
     books: list["Book"] = Relationship(back_populates="author")
 
@@ -18,6 +19,7 @@ class AuthorResponse(BaseModel):
     id: int 
     name: str
     birthday: date
+    email: str
 
     class Config:
         orm_mode = True
@@ -26,6 +28,7 @@ class AuthorResponse(BaseModel):
 class AuthorCreate(BaseModel):
     name: str
     birthday: date
+    email: str
 
     class Config:
         orm_mode = True
@@ -34,6 +37,7 @@ class AuthorUpdate(BaseModel):
     id: int
     name: str | None = None
     birthday: date | None = None 
+    email: str | None = None
 
 
 

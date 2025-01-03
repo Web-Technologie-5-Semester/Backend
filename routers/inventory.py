@@ -63,6 +63,7 @@ async def get_books_by_user(
     _: bool = Depends(role_checker_factory(allowed_roles=[SELLER_ROLE])), 
     session: Session = Depends(get_session)):
     return BookService(session).get_books_by_user(user_id)
+
 #Auhtor
 @inv_router.get("/author", response_model=list[Author])
 async def get_authors(session: Session = Depends(get_session)):

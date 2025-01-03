@@ -9,7 +9,7 @@ from user.service import UserService
 
 order_router = APIRouter()
 
-@order_router.post("/order", response_model=OrderResponse)
+@order_router.post("/order")
 async def add_order(order: OrderCreate, session: Session = Depends(get_session)):
     return OrderService(session).create_a_new_order(order)
 #TODO: Bestellungen anhand User ID rausgeben

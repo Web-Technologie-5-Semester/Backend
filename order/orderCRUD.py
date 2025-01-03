@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from datetime import date
 from enum import Enum
 
@@ -12,16 +12,8 @@ class StatusEnum(str, Enum):
         orm_mode = True
 
 
-
-
-
 class OrderCreate(BaseModel):
-    user_id: int
-
-    shipping_address: str  
-    billing_address: str
-
-    status: StatusEnum = StatusEnum.SELECTED
+    user_id: str
 
     class Config:
         orm_mode = True
@@ -29,10 +21,9 @@ class OrderCreate(BaseModel):
 
 class OrderResponse(BaseModel):
     unique_order_id: int
-    user_id: int
+    user_id: str
     created_at: date
-    shipping_address: str  
-    billing_address: str
+   
     total_price: float
     
     status: StatusEnum
@@ -43,9 +34,8 @@ class OrderResponse(BaseModel):
         
 
 class OrderUpdate(BaseModel):
-    shipping_address: str  
-    billing_address: str
-    status: StatusEnum
+
+    status: Optional[StatusEnum]
 
     class Config:
         orm_mode = True

@@ -23,6 +23,7 @@ class OrderResponse(BaseModel):
     unique_order_id: int
     user_id: str
     created_at: date
+
     total_price: float
     
     status: StatusEnum
@@ -33,6 +34,7 @@ class OrderResponse(BaseModel):
         
 
 class OrderUpdate(BaseModel):
+
     status: Optional[StatusEnum]
     
     class Config:

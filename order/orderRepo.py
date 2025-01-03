@@ -18,7 +18,7 @@ class OrderRepository:
             user_id = order.user_id,
             status = StatusEnum.SELECTED
         )
-        
+        print(f"Debug: created_at = {new_order.created_at}")
         
         # Session aktualisieren
         self.session.add(new_order)
@@ -28,6 +28,7 @@ class OrderRepository:
         
         # order_response = self.create_order_response(new_order)
         order_response = new_order.unique_order_id
+
         return order_response
     
     

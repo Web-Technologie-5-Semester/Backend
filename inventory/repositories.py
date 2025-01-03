@@ -53,7 +53,6 @@ class AuthorRepository:
             new_author = Author(
                 name = author.name,
                 birthday = author.birthday,
-                email = author.email
             )
             self.session.add(new_author)
             self.session.commit()
@@ -63,7 +62,6 @@ class AuthorRepository:
             id = new_author.id,
             name = new_author.name,
             birthday = new_author.birthday,
-            email = new_author.email
         )
 
             return author_resp
@@ -118,6 +116,13 @@ class BooksRepository:
         if result == None:
             raise NotFoundException(isbn, Book.__name__)
         return result 
+    
+    def get_books_by_user(self, user_id: int):
+        stmt = select(Book).where(Book.user_id == user_id)
+        result = self.session.execute(stmt).scalars().all()
+        if result == None:
+            raise NotFoundException(user_id, Book.__name__)
+        return result
         
     def delete_by_isbn(self, isbn: str):
         stmt = select(Book).where(Book.isbn == isbn) 
@@ -140,7 +145,8 @@ class BooksRepository:
             age_recommendation = book.age_recommendation,
             publisher_id = book.publisher_id,
             stock = book.stock,
-            image = book.image
+            image = book.image,
+            user_id= book.user_id
 
         )
 
@@ -169,7 +175,8 @@ class BooksRepository:
                 name = new_book.publisher.name
             ),
             stock = new_book.stock,
-            image = new_book.image
+            image = new_book.image,
+            user_id= new_book.user_id
         )
         return book_resp
 

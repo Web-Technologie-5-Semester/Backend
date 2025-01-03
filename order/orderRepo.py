@@ -13,7 +13,7 @@ class OrderRepository:
         self.session = session
         
     #   CREATE
-    def create_new_order(self, order: OrderCreate) -> OrderResponse:
+    def create_new_order(self, order: OrderCreate):
         new_order = Order(
             user_id = order.user_id,
             status = StatusEnum.SELECTED
@@ -26,8 +26,8 @@ class OrderRepository:
         self.session.refresh(new_order)
         
         
-        order_response = self.create_order_response(new_order)
-
+        # order_response = self.create_order_response(new_order)
+        order_response = new_order.unique_order_id
         return order_response
     
     
@@ -39,7 +39,10 @@ class OrderRepository:
         items = [
             OrderItemResponse(
                 unique_order_item_id=item.unique_order_item_id,
+                unique_order_id = item.unique_order_id,
                 product_id=item.product_id,
+                name = item.name,
+                image = item.image,
                 quantity=item.quantity,
                 price=item.price,
             )
@@ -53,8 +56,6 @@ class OrderRepository:
             unique_order_id=order.unique_order_id,
             user_id=order.user_id,
             created_at=order.created_at,
-            shipping_address=order.shipping_address,
-            billing_address=order.billing_address,
             total_price=total_price,  
             status=order.status,
             items=items,
@@ -151,6 +152,8 @@ class OrderItemRepository:
             new_order_item = Order_Item(
                 unique_order_id=unique_order_id,
                 product_id=order_item.product_id,
+                name = order_item.name,
+                image = order_item.image,
                 quantity=order_item.quantity,
                 price=order_item.price
             )
@@ -171,7 +174,10 @@ class OrderItemRepository:
         
         order_item_response = OrderItemResponse(
         unique_order_item_id = result.unique_order_item_id,
+        unique_order_id = result.unique_order_id,
         product_id = result.product_id,
+        name = result.name,
+        image = result.image,
         quantity = result.quantity,
         price = result.price
         )
@@ -179,11 +185,15 @@ class OrderItemRepository:
 
 
     # UPDATE
-    def update(self, unique_order_item_id: int, order_item_update: OrderItemUpdate) -> OrderItemResponse:
-        stmt = select(Order_Item).where(Order_Item.unique_order_item_id == unique_order_item_id)
+    def update(self, order_item_update: OrderItemUpdate) -> OrderItemResponse:
+        stmt = select(Order_Item).where(Order_Item.unique_order_item_id == order_item_update.unique_order_item_id)
         result = self.session.execute(stmt).scalars().first()
 
         if result:
+            if order_item_update.name is not None:
+                result.quantity = order_item_update.name
+            if order_item_update.image is not None:
+                result.quantity = order_item_update.image
             if order_item_update.quantity is not None:
                 result.quantity = order_item_update.quantity
             if order_item_update.price is not None:
@@ -193,7 +203,10 @@ class OrderItemRepository:
 
             order_item_response = OrderItemResponse(
                 unique_order_item_id = result.unique_order_item_id,
+                unique_order_id= result.unique_order_id,
                 product_id = result.product_id,
+                name = result.name,
+                image = result.image,
                 quantity = result.quantity,
                 price = result.price
             )
@@ -201,7 +214,7 @@ class OrderItemRepository:
             return order_item_response
     
         else:
-          raise Exception(f"OrderItem with ID {unique_order_item_id} not found")
+          raise Exception(f"OrderItem with ID {order_item_update.unique_order_item_id} not found")
         
         
     # DELETE

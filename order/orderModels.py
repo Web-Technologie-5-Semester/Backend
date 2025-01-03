@@ -12,7 +12,7 @@ class Order(SQLModel, table=True):
     unique_order_id: int | None = Field(default=None, primary_key=True)
     
     user_id: str = Field()  
-    created_at: date = Field(default=date.today)
+    created_at: date = Field(default_factory=date.today)
     status: StatusEnum = Field()
     
     

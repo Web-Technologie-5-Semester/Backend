@@ -16,7 +16,7 @@ class OrderService():
         self.session = session
         self.orderRepo = OrderRepository(session)
         
-    def create_a_new_order(self, order: OrderCreate) -> OrderResponse:
+    def create_a_new_order(self, order: OrderCreate):
         return self.orderRepo.create_new_order(order)
     
     def read_by_unique_order_id(self, unique_order_id :int) -> OrderResponse:
@@ -47,8 +47,8 @@ class OrderItemService():
     def read_by_unique_order_item_id(self, unique_order_item_id :int) -> OrderItemResponse:
         return self.orderRepo.get_by_id(unique_order_item_id)
     
-    def update_an_order_item(self, unique_order_item_id :int, updated_order_item :OrderItemUpdate) -> OrderItemResponse:
-        return self.orderRepo.update(unique_order_item_id, updated_order_item)
+    def update_an_order_item(self, updated_order_item :OrderItemUpdate) -> OrderItemResponse:
+        return self.orderRepo.update(updated_order_item)
     
     def delete_an_order_item(self, unique_oder_item_id :int) -> None:
         return self.orderRepo.delete_by_id(unique_oder_item_id)

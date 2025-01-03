@@ -9,7 +9,7 @@ from user.service import UserService
 
 order_router = APIRouter()
 
-@order_router.post("/order")
+@order_router.post("/order", response_model=None)
 async def add_order(order: OrderCreate, session: Session = Depends(get_session)):
     return OrderService(session).create_a_new_order(order)
 
@@ -24,7 +24,6 @@ async def get_order_by_user_id(user_id: str, session: Session = Depends(get_sess
 @order_router.put("/order/{unique_order_id}", response_model=OrderResponse)
 async def update_order(unique_order_id: int,  order_update: OrderUpdate, session: Session = Depends(get_session)):
     return OrderService(session).update_an_order(unique_order_id, order_update)
-
 
 @order_router.delete("/delete/order/{unique_order_id}")
 async def delete_order(unique_order_id: int, session: Session = Depends(get_session)):
@@ -41,8 +40,8 @@ async def get_order_item(unique_order_item_id: int, session: Session = Depends(g
     return OrderItemService(session).read_by_unique_order_item_id(unique_order_item_id)
                                                
 @order_router.put("/order/item/{unique_order_item_id}", response_model=OrderItemResponse)
-async def update_order_item(unique_order_item_id: int, order_item_update: OrderItemUpdate, session: Session = Depends(get_session)):
-    return OrderItemService(session).update_an_order_item(unique_order_item_id, order_item_update)
+async def update_order_item(order_item_update: OrderItemUpdate, session: Session = Depends(get_session)):
+    return OrderItemService(session).update_an_order_item(order_item_update)
                                               
 @order_router.delete("/order/item/{unique_order_item_id}")
 async def delete_order_item(unique_order_item_id: int, session: Session = Depends(get_session)):

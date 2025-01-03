@@ -16,7 +16,7 @@ class OrderService():
         self.session = session
         self.orderRepo = OrderRepository(session)
         
-    def create_a_new_order(self, order: OrderCreate) -> OrderResponse:
+    def create_a_new_order(self, order: OrderCreate):
         return self.orderRepo.create_new_order(order)
     
     def read_by_unique_order_id(self, unique_order_id :int) -> OrderResponse:

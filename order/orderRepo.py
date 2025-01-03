@@ -13,12 +13,12 @@ class OrderRepository:
         self.session = session
         
     #   CREATE
-    def create_new_order(self, order: OrderCreate) -> OrderResponse:
+    def create_new_order(self, order: OrderCreate):
         new_order = Order(
             user_id = order.user_id,
             status = StatusEnum.SELECTED
         )
-        
+        print(f"Debug: created_at = {new_order.created_at}")
         
         # Session aktualisieren
         self.session.add(new_order)
@@ -26,8 +26,9 @@ class OrderRepository:
         self.session.refresh(new_order)
         
         
-        order_response = self.create_order_response(new_order)
-
+        # order_response = self.create_order_response(new_order)
+        order_response = new_order.unique_order_id
+        
         return order_response
     
     
@@ -53,8 +54,6 @@ class OrderRepository:
             unique_order_id=order.unique_order_id,
             user_id=order.user_id,
             created_at=order.created_at,
-            shipping_address=order.shipping_address,
-            billing_address=order.billing_address,
             total_price=total_price,  
             status=order.status,
             items=items,

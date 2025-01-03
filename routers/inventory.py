@@ -57,14 +57,20 @@ async def search(word: str, session: Session = Depends(get_session)):
 async def get_recommendations(isbn: str, session: Session = Depends(get_session)):
     return BookService(session).get_recommendations_for(isbn)
 
+@inv_router.get("/books/{user_id}", response_model=list[BookResponse])
+async def get_books_by_user(
+    user_id: int, 
+    _: bool = Depends(role_checker_factory(allowed_roles=[SELLER_ROLE])), 
+    session: Session = Depends(get_session)):
+    return BookService(session).get_books_by_user(user_id)
 #Auhtor
 @inv_router.get("/author", response_model=list[Author])
 async def get_authors(session: Session = Depends(get_session)):
     return AuthorService(session).get_all_authors()
 
-@inv_router.get("/author/{email}/books", response_model=list[Book])
-async def get_books_by_author(email:str, session: Session = Depends(get_session)):
-    return AuthorService(session).get_books_by_author(email)
+@inv_router.get("/author/{id}/books", response_model=list[Book])
+async def get_books_by_author(id:int, session: Session = Depends(get_session)):
+    return AuthorService(session).get_books_by_author(id)
 
 @inv_router.delete("/author/{author_id}", response_model=Author)
 async def delete_author_by_id(

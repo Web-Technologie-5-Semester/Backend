@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from sqlmodel import Field, Session, SQLModel, create_engine, select, Relationship
 from datetime import date
-
+from user.models import User
 
 
 #Author 
@@ -10,7 +10,6 @@ class Author(SQLModel, table = True):
     id: int | None = Field(default= None, primary_key= True)
     name: str = Field()
     birthday: date = Field()
-    email: str = Field()
 
     books: list["Book"] = Relationship(back_populates="author")
 
@@ -19,7 +18,6 @@ class AuthorResponse(BaseModel):
     id: int 
     name: str
     birthday: date
-    email: str
 
     class Config:
         orm_mode = True
@@ -28,7 +26,6 @@ class AuthorResponse(BaseModel):
 class AuthorCreate(BaseModel):
     name: str
     birthday: date
-    email: str
 
     class Config:
         orm_mode = True
@@ -37,7 +34,6 @@ class AuthorUpdate(BaseModel):
     id: int
     name: str | None = None
     birthday: date | None = None 
-    email: str | None = None
 
 
 
@@ -117,7 +113,7 @@ class Book(SQLModel, table = True):
     author: Author = Relationship(back_populates="books")
     genre: Genre | None = Relationship(back_populates="books")
     publisher: Publisher | None = Relationship(back_populates="books")
-
+    user_id: int = Field(foreign_key="user.id")
 
 class BookResponse(BaseModel):
     isbn: str
@@ -131,6 +127,7 @@ class BookResponse(BaseModel):
     publisher: Publisher
     stock: int
     image: bytes
+    user_id: int
     
     class Config:
         orm_mode = True
@@ -147,6 +144,7 @@ class BookCreate(BaseModel):
     publisher_id : int
     stock: int
     image: bytes
+    user_id: int
 
     class Config:
         orm_mode = True

@@ -41,9 +41,7 @@ class TokenData:
             )
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXP_MIN)
         access_token = self.create_access_token(
-            data={"sub": user.email}, expires_delta=access_token_expires)
-        # user_id = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM]).get("sub")
-        # self.user_rep.add_access_token(access_token, user_id)
+            data={"sub": user.email, "user_id": user.id}, expires_delta=access_token_expires)
         return Token(access_token=access_token, token_type="bearer")
 
     def create_access_token(self, data: dict, expires_delta: timedelta | None = None):

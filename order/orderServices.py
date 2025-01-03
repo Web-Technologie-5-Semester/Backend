@@ -40,9 +40,8 @@ class OrderItemService():
         self.session = session
         self.orderRepo = OrderItemRepository(session)
         
-    def add_order_items(self, json_list: list[dict]) -> OrderResponse:
-        order_items = self.orderRepo.convert_json_to_order_items(json_list)
-        return self.orderRepo.add_bulk_of_items_to_order(order_items)
+    def add_order_items(self, json_list: list[OrderItemCreate]) -> OrderResponse:
+        return self.orderRepo.add_bulk_of_items_to_order(json_list)
     
     def read_by_unique_order_item_id(self, unique_order_item_id :int) -> OrderItemResponse:
         return self.orderRepo.get_by_id(unique_order_item_id)
@@ -53,5 +52,4 @@ class OrderItemService():
     def delete_an_order_item(self, unique_oder_item_id :int) -> None:
         return self.orderRepo.delete_by_id(unique_oder_item_id)
     
-#TODO: soll alles auf einmal geschickt werden? oder wie jetzt erst bestellung, dann jedes item einzeln
-#TODO: Payment einrichten, stripe? Gute Doku
+

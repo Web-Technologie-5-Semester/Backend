@@ -11,7 +11,7 @@ from .orderCRUD import StatusEnum
 class Order(SQLModel, table=True):
     unique_order_id: int | None = Field(default=None, primary_key=True)
     
-    user_id: str = Field()  
+    user_id: str | None = Field(default=None,index=True)  
     created_at: date = Field(default_factory=date.today)
     status: StatusEnum = Field()
     

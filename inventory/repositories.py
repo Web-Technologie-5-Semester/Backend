@@ -28,6 +28,13 @@ class AuthorRepository:
         if result == None:
             raise NotFoundException(id_author, Author.__name__)
         return result
+    
+    def get_author_by_email(self, email: str):
+        stmt = select(Author).where(Author.email == email)
+        result = self.session.execute(stmt).scalars().first()
+        if result == None:
+            raise NotFoundException(email, Author.__name__)
+        return result.id
         
     def delete_by_id(self, id_author: int) -> Author:
         stmt = select(Author).where(Author.id == id_author)
@@ -45,7 +52,8 @@ class AuthorRepository:
         if not result:
             new_author = Author(
                 name = author.name,
-                birthday = author.birthday
+                birthday = author.birthday,
+                email = author.email
             )
             self.session.add(new_author)
             self.session.commit()
@@ -54,7 +62,8 @@ class AuthorRepository:
             author_resp = AuthorResponse(
             id = new_author.id,
             name = new_author.name,
-            birthday = new_author.birthday
+            birthday = new_author.birthday,
+            email = new_author.email
         )
 
             return author_resp

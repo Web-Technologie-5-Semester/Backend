@@ -74,12 +74,9 @@ class AuthorService():
     def get_all_authors(self):
         return self.author_rep.get_all()
     
-    def get_books_by_author(self, id: str):
-        # result :list[Author]| None = None
-        # try:
-        result = self.author_rep.get_books_by_id(id)
-        # except NotFoundException as n:
-        #     raise HTTPException(404, n.to_string())
+    def get_books_by_author(self, email: str):
+        author = self.author_rep.get_author_by_email(email)
+        result = self.author_rep.get_books_by_id(author)
         return result
     
     def delete_author_by_id(self, id: int):
@@ -112,7 +109,6 @@ class GenreService():
     
     def create(self, genre: GenreCreate):
         new_genre = self.genre_rep.check_genre(genre)
-        #new_genre = self.genre_rep.mapping_genre(old_genre)
         return new_genre
     
     def update(self, id: int, new_genre: Genre):

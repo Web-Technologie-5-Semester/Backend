@@ -23,11 +23,11 @@ class OrderResponse(BaseModel):
     unique_order_id: int
     user_id: str
     created_at: date
-   
+
     total_price: float
     
     status: StatusEnum
-    items: List["OrderItemResponse"] 
+    items: list["OrderItemResponse"] 
 
     class Config:
         orm_mode = True
@@ -36,7 +36,7 @@ class OrderResponse(BaseModel):
 class OrderUpdate(BaseModel):
 
     status: Optional[StatusEnum]
-
+    
     class Config:
         orm_mode = True
       
@@ -59,7 +59,10 @@ class OrderItemCreate(BaseModel):
 class OrderItemResponse(BaseModel):
 
     unique_order_item_id: int
+    unique_order_id: int
     product_id: str
+    name: str
+    image: str
     quantity: int
     price: float
 
@@ -69,6 +72,9 @@ class OrderItemResponse(BaseModel):
 
 
 class OrderItemUpdate(BaseModel):
+    unique_order_item_id: int
+    name: str | None = None
+    image: str | None = None
     quantity: int | None = None
     price: float | None = None
 

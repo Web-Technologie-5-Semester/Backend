@@ -22,7 +22,7 @@ class OrderService():
     def read_by_unique_order_id(self, unique_order_id :int) -> OrderResponse:
         return self.orderRepo.get_single_order_by_order_id(unique_order_id)
     
-    def read_by_unique_user_id(self, user_id :int) -> list[OrderResponse]:
+    def read_by_unique_user_id(self, user_id :str) -> list[OrderResponse]:
         return self.orderRepo.get_all_orders_by_user_id(user_id)
     
     def update_an_order(self, unique_order_id :int, updated_order :OrderUpdate) -> OrderResponse:
@@ -47,8 +47,8 @@ class OrderItemService():
     def read_by_unique_order_item_id(self, unique_order_item_id :int) -> OrderItemResponse:
         return self.orderRepo.get_by_id(unique_order_item_id)
     
-    def update_an_order_item(self, unique_order_item_id :int, updated_order_item :OrderItemUpdate) -> OrderItemResponse:
-        return self.orderRepo.update(unique_order_item_id, updated_order_item)
+    def update_an_order_item(self, updated_order_item :OrderItemUpdate) -> OrderItemResponse:
+        return self.orderRepo.update(updated_order_item)
     
     def delete_an_order_item(self, unique_oder_item_id :int) -> None:
         return self.orderRepo.delete_by_id(unique_oder_item_id)

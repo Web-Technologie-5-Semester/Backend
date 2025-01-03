@@ -9,17 +9,16 @@ from user.service import UserService
 
 order_router = APIRouter()
 
-@order_router.post("/order", response_model=OrderResponse)
+@order_router.post("/order")
 async def add_order(order: OrderCreate, session: Session = Depends(get_session)):
     return OrderService(session).create_a_new_order(order)
-#TODO: Bestellungen anhand User ID rausgeben
 
 @order_router.get("/order/{unique_order_id}", response_model=OrderResponse)
 async def get_order_by_order_id(unique_order_id: int, session: Session = Depends(get_session)):
     return OrderService(session).read_by_unique_order_id(unique_order_id)
 
 @order_router.get("/order/{user_id}", response_model=OrderResponse)
-async def get_order_by_user_id(user_id: int, session: Session = Depends(get_session)):
+async def get_order_by_user_id(user_id: str, session: Session = Depends(get_session)):
     return OrderService(session).read_by_unique_user_id(user_id)
 
 @order_router.put("/order/{unique_order_id}", response_model=OrderResponse)
@@ -32,12 +31,7 @@ async def delete_order(unique_order_id: int, session: Session = Depends(get_sess
     return OrderService(session).delete_an_order(unique_order_id)
 
 
-# OrderItem      
-"""
-@order_router.post("/order/item", response_model=OrderItemResponse)
-async def add_order_item(order_item: OrderItemCreate, session: Session = Depends(get_session)):
-    return OrderItemService(session).add_order_items(order_item)
-"""                                            
+# OrderItem                                                
 @order_router.post("/order/item", response_model=OrderItemResponse)
 async def add_order_item(json_list: list[dict], session: Session = Depends(get_session)):
     return OrderItemService(session).add_order_items(json_list)                                  

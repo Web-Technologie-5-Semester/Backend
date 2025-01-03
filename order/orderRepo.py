@@ -77,7 +77,7 @@ class OrderRepository:
         
         
     # READ
-    def get_all_orders_by_user_id(self, user_id: int) -> list[OrderResponse]:
+    def get_all_orders_by_user_id(self, user_id: str) -> list[OrderResponse]:
         stmt = select(Order).where(Order.user_id == user_id)
         results = self.session.execute(stmt).scalars().all()
         
@@ -98,10 +98,6 @@ class OrderRepository:
         if not order:
             raise Exception(f"Order with ID {unique_order_id} not found")
         
-        if order_update.shipping_address:
-            order.shipping_address = order_update.shipping_address
-        if order_update.billing_address:
-            order.billing_address = order_update.billing_address
         if order_update.status:
             order.status = order_update.status
         

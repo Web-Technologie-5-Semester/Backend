@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, Column
 from sqlalchemy.orm import Session
 from .orderCRUD import OrderCreate, OrderItemCreate, OrderItemResponse, OrderItemUpdate, OrderResponse, OrderUpdate
 from .orderModels import Order, Order_Item, StatusEnum
@@ -25,8 +25,6 @@ class OrderRepository:
         self.session.commit()
         self.session.refresh(new_order)
         
-        
-        # order_response = self.create_order_response(new_order)
         order_response = new_order.unique_order_id
 
         return order_response
@@ -66,7 +64,7 @@ class OrderRepository:
 
     
     
-    # READ
+    # READ  
     def get_single_order_by_order_id(self, unique_order_id: int) -> OrderResponse:
         stmt = select(Order).where(Order.unique_order_id == unique_order_id)
         result = self.session.execute(stmt).scalars().first()
@@ -78,16 +76,18 @@ class OrderRepository:
             raise Exception(f"Order with ID {unique_order_id} not found")    
         
         
-    # READ
+     # READ
     def get_all_orders_by_user_id(self, user_id: str) -> list[OrderResponse]:
         stmt = select(Order).where(Order.user_id == user_id)
         results = self.session.execute(stmt).scalars().all()
-        
+
         if results:
+            # order_responses = self.create_order_response(results)
             order_responses = [self.create_order_response(order) for order in results]
             return order_responses
         else:
             raise Exception(f"No orders found for user with ID {user_id}")
+
 
         
         
@@ -141,17 +141,19 @@ class OrderItemRepository:
         if not order_items:
             raise Exception("The order_items list cannot be empty")
         
-        unique_order_id = order_items[0].unique_order_id
-        existing_order = self.session.query(Order).filter(Order.unique_order_id == unique_order_id).first()
+        curr_unique_order_id = order_items[0].unique_order_id
+        
+        stmt = select(Order).where(Order.unique_order_id == curr_unique_order_id)
+        result = self.session.execute(stmt).scalars().first()
 
-        if not existing_order:
-            raise Exception(f"Order with ID {unique_order_id} not found")
+        if not result:
+            raise Exception(f"Order with ID {curr_unique_order_id} not found")
 
 
         # Alle OrderItems hinzufügen
         for order_item in order_items:
             new_order_item = Order_Item(
-                unique_order_id=unique_order_id,
+                unique_order_id=curr_unique_order_id,
                 product_id=order_item.product_id,
                 name = order_item.name,
                 image = order_item.image,
@@ -159,10 +161,14 @@ class OrderItemRepository:
                 price=order_item.price
             )
             self.session.add(new_order_item)
+            self.session.commit()
             self.session.flush()  
 
 
-        order_response = OrderRepository.get_single_order_by_order_id(unique_order_id)
+
+
+        order_repo = OrderRepository(self.session)
+        order_response = order_repo.get_single_order_by_order_id(curr_unique_order_id)
         self.session.commit()
 
         return order_response
@@ -230,14 +236,5 @@ class OrderItemRepository:
         else:
           raise Exception(f"OrderItem with ID {unique_order_item_id} not found")
         
-
-
-# Einlesen von Listen für ItemCreate
-
-def convert_json_to_order_items(self, json_list: list[dict]) -> list[OrderItemCreate]:
-    try:
-        return [OrderItemCreate(**item) for item in json_list]
-    except Exception:
-        return []
 
        

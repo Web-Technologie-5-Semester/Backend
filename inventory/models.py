@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from sqlalchemy import TEXT
 from sqlmodel import Field, Session, SQLModel, create_engine, select, Relationship
 from datetime import date
 from user.models import User
@@ -107,7 +108,7 @@ class Book(SQLModel, table = True):
     age_recommendation: int = Field()
     publisher_id: int | None = Field(default=None, foreign_key="publisher.id")
     stock: int = Field()
-    image: bytes= Field()
+    image: str= Field(sa_type=TEXT)
 
     author_id: int = Field(foreign_key="author.id")
     author: Author = Relationship(back_populates="books")
@@ -126,7 +127,7 @@ class BookResponse(BaseModel):
     age_recommendation: int
     publisher: Publisher
     stock: int
-    image: bytes
+    image: str
     user_id: int
     
     class Config:
@@ -143,7 +144,7 @@ class BookCreate(BaseModel):
     age_recommendation : int
     publisher_id : int
     stock: int
-    image: bytes
+    image: str
     user_id: int
 
     class Config:
@@ -158,7 +159,7 @@ class BookUpdate(BaseModel):
     price : str | None = None
     age_recommendation : int | None = None
     publisher : str | None = None
-    image: bytes | None = None
+    image: str | None = None
 
 
 

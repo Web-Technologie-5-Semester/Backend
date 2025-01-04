@@ -16,6 +16,7 @@ faker = "*"
 pillow="*"
 scikit-learn="*"
 fastapi-mail = "*"
+paypalrestsdk = "*"
 
 [dev-packages]
 

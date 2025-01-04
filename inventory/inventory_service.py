@@ -79,6 +79,7 @@ class AuthorService():
     
     def get_books_by_author(self, id: int):
         result = self.author_rep.get_books_by_id(id)
+        return result
     
     def delete_author_by_id(self, id: int):
         return self.author_rep.delete_by_id(id)
